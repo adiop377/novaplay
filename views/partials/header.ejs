@@ -1,0 +1,45 @@
+<header>
+    <div class="top-ticker">
+        <div class="ticker-content">
+            <span>⚡ Limited Time Offer: Get 20% OFF on all Grandmaster Accounts!</span>
+            <span>🔥 24 IDs sold in the last 2 hours!</span>
+            <span>✅ All IDs are 100% verified by our pros</span>
+        </div>
+    </div>
+    <nav class="container">
+        <a href="/" class="logo" style="display: flex; align-items: center; gap: 12px; text-decoration: none;">
+            <img src="/images/playnova-logo.png" alt="PlayNova" style="height: 52px; width: auto; object-fit: contain; mix-blend-mode: lighten; display: block;">
+            <span class="logo-text" style="display: flex; align-items: center; line-height: 1; transform: translateY(-2px);">PlayNova</span>
+        </a>
+        <ul class="nav-links">
+            <li><a href="/">Home</a></li>
+            <li><a href="/#ids">Browse IDs</a></li>
+            <li><a href="/topup" class="nav-highlight">💎 Topup</a></li>
+            <li><a href="/sold">Sold History</a></li>
+            <li><a href="/#why-us">Why Us</a></li>
+            <li><a href="/#reviews">Reviews</a></li>
+        </ul>
+        <div class="auth-btns">
+            <a href="/cart" class="cart-nav" id="cartOpenBtn">
+                <span class="cart-icon">🛒</span>
+                <span class="cart-badge" id="cartCount">0</span>
+            </a>
+            <% if (user) { %>
+                <div class="user-menu">
+                    <span class="user-name">Hi, <%= user.name %></span>
+                    <div class="user-dropdown">
+                        <a href="/profile">👤 Profile</a>
+                        <a href="/orders">📦 My Orders</a>
+                        <% if (user.role==='admin' ) { %>
+                            <a href="/admin">⚙️ Admin Panel</a>
+                            <% } %>
+                                <a href="/logout">🚪 Logout</a>
+                    </div>
+                </div>
+                <% } else { %>
+                    <a href="/login" class="btn btn-primary header-btn">Login Now</a>
+                    <a href="/register" class="btn btn-primary header-btn">Register Now</a>
+                    <% } %>
+        </div>
+    </nav>
+</header>

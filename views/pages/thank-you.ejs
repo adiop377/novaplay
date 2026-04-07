@@ -1,0 +1,24 @@
+<!-- views/pages/thank-you.ejs -->
+<section class="thank-you-section container section" style="padding-top: 150px; text-align: center; min-height: 70vh;">
+    <div class="success-icon" style="font-size: 5rem; color: #00e5ff; margin-bottom: 20px; text-shadow: 0 0 20px rgba(0,229,255,0.5);">
+        ✅
+    </div>
+    <h1 style="font-size: 3.5rem; margin-bottom: 20px; font-family: 'Orbitron', sans-serif;">Payment <span class="neon-text-green">Successful</span>!</h1>
+    
+    <div class="order-details card-theme fade-up active" style="max-width: 600px; margin: 0 auto; background: rgba(255,255,255,0.02); padding: 40px; border-radius: 20px; border: 1px solid var(--primary-neon); box-shadow: 0 0 20px rgba(0, 229, 255, 0.1); backdrop-filter: blur(10px);">
+        <h2 style="font-size: 1.8rem; margin-bottom: 15px;">Thank you for your purchase, <%= order.user_name %>!</h2>
+        <p style="margin: 20px 0; color: var(--text-dim); font-size: 1.1rem; line-height: 1.6;">
+            Your transaction for Order <strong>#<%= order.id %></strong> was processed successfully. 
+            The admin will be contacting you shortly via Telegram or Email with your Free Fire account details!
+        </p>
+
+        <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid var(--glass-border);">
+            <p style="font-size: 1.2rem;"><strong>Total Paid:</strong> <span style="color: var(--primary-neon); font-size: 1.5rem; font-weight: 800;">₹<%= parseFloat(order.total).toLocaleString('en-IN') %></span></p>
+            <p style="color: var(--text-dim); margin-top: 10px; font-size: 0.9rem;">Transaction ID: <%= order.payment_id %></p>
+        </div>
+
+        <div style="margin-top: 40px;">
+            <a href="/orders" class="btn-primary">View My Orders</a>
+        </div>
+    </div>
+</section>

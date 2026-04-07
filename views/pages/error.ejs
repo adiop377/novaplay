@@ -1,0 +1,46 @@
+<section class="error-section">
+    <div class="container">
+        <div class="error-card">
+            <div class="error-icon">⚠️</div>
+            <h1>500</h1>
+            <h2>Server Error</h2>
+            <p>Something went wrong on our end. Please try again later.</p>
+            <a href="/" class="btn btn-primary">Back to Home</a>
+        </div>
+    </div>
+</section>
+
+<style>
+    .error-section {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding-top: 100px;
+    }
+
+    .error-card {
+        padding: 60px;
+    }
+
+    .error-icon {
+        font-size: 5rem;
+        margin-bottom: 20px;
+    }
+
+    .error-card h1 {
+        font-size: 8rem;
+        color: var(--accent-red);
+        line-height: 1;
+    }
+
+    .error-card h2 {
+        margin-bottom: 20px;
+    }
+
+    .error-card p {
+        color: var(--text-dim);
+        margin-bottom: 30px;
+    }
+</style>

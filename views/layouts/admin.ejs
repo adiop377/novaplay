@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>
+        <%= typeof title !=='undefined' ? title : 'Admin - PlayNova' %>
+    </title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;800&family=Rajdhani:wght@300;500;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/admin.css">
+</head>
+
+<body class="admin-body">
+    <div class="admin-wrapper">
+        <!-- Admin Sidebar -->
+        <aside class="admin-sidebar">
+            <div class="admin-logo">
+                <a href="/admin">FF <span class="neon-text-green">ADMIN</span></a>
+            </div>
+            <nav class="admin-nav">
+                <a href="/admin" class="admin-nav-link">📊 Dashboard</a>
+                <a href="/admin/products" class="admin-nav-link">📦 Products</a>
+                <a href="/admin/products/new" class="admin-nav-link">➕ Add Product</a>
+                <a href="/admin/orders" class="admin-nav-link">🛒 Orders</a>
+                <a href="/admin/topups" class="admin-nav-link">💎 Manage Topups</a>
+                <hr>
+                <a href="/" class="admin-nav-link">🏠 View Site</a>
+                <a href="/logout" class="admin-nav-link">🚪 Logout</a>
+            </nav>
+        </aside>
+
+        <!-- Admin Main Content -->
+        <main class="admin-main">
+            <div class="admin-header">
+                <h1>
+                    <%= typeof title !=='undefined' ? title.replace(' - PlayNova', '' ) : 'Admin' %>
+                </h1>
+                <div class="admin-user">
+                    Welcome, <strong>
+                        <%= user ? user.name : 'Admin' %>
+                    </strong>
+                </div>
+            </div>
+
+            <!-- Flash Messages -->
+            <% if (typeof success_msg !=='undefined' && success_msg && success_msg.length> 0) { %>
+                <div class="alert alert-success">
+                    <%= success_msg %>
+                </div>
+                <% } %>
+                    <% if (typeof error_msg !=='undefined' && error_msg && error_msg.length> 0) { %>
+                        <div class="alert alert-error">
+                            <%= error_msg %>
+                        </div>
+                        <% } %>
+
+                            <%- body %>
+        </main>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,72 @@
+<div class="admin-stats">
+    <div class="stat-card">
+        <div class="stat-icon">📦</div>
+        <div class="stat-info">
+            <h3>
+                <%= productStats.total_products %>
+            </h3>
+            <p>Total Products</p>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon">✅</div>
+        <div class="stat-info">
+            <h3>
+                <%= productStats.sold_products %>
+            </h3>
+            <p>Sold Products</p>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon">🛒</div>
+        <div class="stat-info">
+            <h3>
+                <%= orderStats.total_orders %>
+            </h3>
+            <p>Total Orders</p>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon">💰</div>
+        <div class="stat-info">
+            <h3>₹<%= parseFloat(orderStats.total_revenue || 0).toLocaleString('en-IN') %>
+            </h3>
+            <p>Total Revenue</p>
+        </div>
+    </div>
+</div>
+
+<div class="admin-sections">
+    <div class="admin-section">
+        <h3>Order Status</h3>
+        <div class="mini-stats">
+            <div class="mini-stat">
+                <span class="label">Pending</span>
+                <span class="value">
+                    <%= orderStats.pending_orders %>
+                </span>
+            </div>
+            <div class="mini-stat">
+                <span class="label">Confirmed</span>
+                <span class="value">
+                    <%= orderStats.confirmed_orders %>
+                </span>
+            </div>
+            <div class="mini-stat">
+                <span class="label">Delivered</span>
+                <span class="value">
+                    <%= orderStats.delivered_orders %>
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <div class="admin-section">
+        <h3>Quick Actions</h3>
+        <div class="quick-actions">
+            <a href="/admin/products/new" class="action-btn">➕ Add New Product</a>
+            <a href="/admin/orders" class="action-btn">📋 View All Orders</a>
+            <a href="/admin/products" class="action-btn">📦 Manage Products</a>
+        </div>
+    </div>
+</div>

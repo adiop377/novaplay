@@ -1,0 +1,165 @@
+<div class="dashboard-content" style="padding: 30px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+        <h2 style="font-family: 'Rajdhani', sans-serif; font-size: 2rem; color: #fff; margin: 0;">💎 Manage Diamond Topups</h2>
+        <button onclick="document.getElementById('addModal').style.display='flex'" class="btn-primary" style="padding: 10px 20px; border-radius: 8px; font-weight: 700; cursor: pointer;">
+            + Add New Package
+        </button>
+    </div>
+
+    <!-- Topup Packages Table -->
+    <div class="admin-card" style="background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 15px; overflow: hidden;">
+        <table style="width: 100%; border-collapse: collapse; color: #fff;">
+            <thead>
+                <tr style="background: rgba(255,255,255,0.05); text-align: left;">
+                    <th style="padding: 15px;">Image</th>
+                    <th style="padding: 15px;">Amount</th>
+                    <th style="padding: 15px;">Bonus</th>
+                    <th style="padding: 15px;">Discount (₹)</th>
+                    <th style="padding: 15px;">Original Price (₹)</th>
+                    <th style="padding: 15px;">Final Price (₹)</th>
+                    <th style="padding: 15px; text-align: right;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% if (packages && packages.length > 0) { %>
+                    <% packages.forEach(pkg => { %>
+                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                            <td style="padding: 15px;">
+                                <img src="<%= pkg.image_url %>" style="width: 40px; height: 40px; border-radius: 5px; object-fit: contain;" alt="pkg">
+                            </td>
+                            <td style="padding: 15px; font-weight: 700;">💎 <%= pkg.amount %></td>
+                            <td style="padding: 15px; color: #00e5ff;">+<%= pkg.bonus %></td>
+                            <td style="padding: 15px; color: #ff9800; font-weight: 700;">₹<%= pkg.discount || 0 %></td>
+                            <td style="padding: 15px; font-weight: 700; color: rgba(255,255,255,0.4); text-decoration: line-through;">₹<%= pkg.price %></td>
+                            <td style="padding: 15px; font-weight: 700; color: #00ff88;">₹<%= (parseFloat(pkg.price) - parseFloat(pkg.discount || 0)).toFixed(2) %></td>
+                            <td style="padding: 15px; text-align: right; display: flex; gap: 10px; justify-content: flex-end;">
+                                <button onclick='openEditModal(<%- JSON.stringify(pkg) %>)' style="background: none; border: none; color: #00e5ff; cursor: pointer; font-size: 1.1rem; padding: 5px;" title="Edit Package">
+                                    ✏️
+                                </button>
+                                <form action="/admin/topups/<%= pkg.id %>/delete" method="POST" style="display: inline;" onsubmit="return confirm('Delete this package?')">
+                                    <button type="submit" style="background: none; border: none; color: #ff4444; cursor: pointer; font-size: 1.1rem; padding: 5px;" title="Delete Package">
+                                        🗑️
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    <% }); %>
+                <% } else { %>
+                    <tr>
+                        <td colspan="5" style="padding: 30px; text-align: center; color: var(--text-dim);">No packages found. Add your first one!</td>
+                    </tr>
+                <% } %>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Add Modal (Hidden by default) -->
+    <div id="addModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); z-index: 1000; align-items: center; justify-content: center; padding: 20px;">
+        <div style="background: #1a1b2e; border: 1px solid #00e5ff; border-radius: 20px; width: 100%; max-width: 500px; padding: 30px; box-shadow: 0 0 30px rgba(0,229,255,0.2);">
+            <h3 style="color: #fff; margin-bottom: 20px; font-family: 'Rajdhani', sans-serif; font-size: 1.5rem;">Add Topup Package</h3>
+            <form action="/admin/topups" method="POST" enctype="multipart/form-data">
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; color: var(--text-dim); margin-bottom: 5px;">Base Amount (Diamonds)</label>
+                    <input type="number" name="amount" required style="width: 100%; padding: 10px; background: rgba(255,255,255,0.05); border: 1px solid #333; border-radius: 8px; color: #fff;">
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; color: var(--text-dim); margin-bottom: 5px;">Bonus Diamonds</label>
+                    <input type="number" name="bonus" value="0" style="width: 100%; padding: 10px; background: rgba(255,255,255,0.05); border: 1px solid #333; border-radius: 8px; color: #fff;">
+                </div>
+                <div style="margin-bottom: 5px;">
+                    <label style="display: block; color: var(--text-dim); margin-bottom: 5px;">Price (₹) (MRP)</label>
+                    <input type="number" step="0.01" name="price" id="addPrice" required style="width: 100%; padding: 10px; background: rgba(255,255,255,0.05); border: 1px solid #333; border-radius: 8px; color: #fff;">
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; color: var(--text-dim); margin-bottom: 5px;">Discount (₹)</label>
+                    <input type="number" name="discount" id="addDiscount" value="0" min="0" style="width: 100%; padding: 10px; background: rgba(255,255,255,0.05); border: 1px solid #333; border-radius: 8px; color: #fff;">
+                </div>
+                <div style="margin-bottom: 15px; padding: 10px; background: rgba(0,229,255,0.05); border-radius: 8px; border: 1px dashed var(--primary-neon);">
+                    <label style="display: block; color: var(--primary-neon); margin-bottom: 5px; font-weight: 800;">Final Price: <span id="addFinalPreview">₹0.00</span></label>
+                </div>
+                <div style="margin-bottom: 25px;">
+                    <label style="display: block; color: var(--text-dim); margin-bottom: 5px;">Upload Package Image (Optional)</label>
+                    <input type="file" name="image" accept="image/*" style="width: 100%; padding: 10px; background: rgba(255,255,255,0.05); border: 1px solid #333; border-radius: 8px; color: #fff;">
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button type="submit" class="btn-primary" style="flex: 1; padding: 12px; border-radius: 8px; cursor: pointer;">Save Package</button>
+                    <button type="button" onclick="document.getElementById('addModal').style.display='none'" style="flex: 1; background: #333; border: none; color: #fff; padding: 12px; border-radius: 8px; cursor: pointer;">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Modal -->
+    <div id="editModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); z-index: 1000; align-items: center; justify-content: center; padding: 20px;">
+        <div style="background: #1a1b2e; border: 1px solid #00e5ff; border-radius: 20px; width: 100%; max-width: 500px; padding: 30px; box-shadow: 0 0 30px rgba(0,229,255,0.2);">
+            <h3 style="color: #fff; margin-bottom: 20px; font-family: 'Rajdhani', sans-serif; font-size: 1.5rem;">Edit Topup Package</h3>
+            <form id="editForm" action="" method="POST" enctype="multipart/form-data">
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; color: var(--text-dim); margin-bottom: 5px;">Base Amount (Diamonds)</label>
+                    <input type="number" name="amount" id="editAmount" required style="width: 100%; padding: 10px; background: rgba(255,255,255,0.05); border: 1px solid #333; border-radius: 8px; color: #fff;">
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; color: var(--text-dim); margin-bottom: 5px;">Bonus Diamonds</label>
+                    <input type="number" name="bonus" id="editBonus" style="width: 100%; padding: 10px; background: rgba(255,255,255,0.05); border: 1px solid #333; border-radius: 8px; color: #fff;">
+                </div>
+                <div style="margin-bottom: 5px;">
+                    <label style="display: block; color: var(--text-dim); margin-bottom: 5px;">Price (₹) (MRP)</label>
+                    <input type="number" step="0.01" name="price" id="editPrice" required style="width: 100%; padding: 10px; background: rgba(255,255,255,0.05); border: 1px solid #333; border-radius: 8px; color: #fff;">
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; color: var(--text-dim); margin-bottom: 5px;">Discount (₹)</label>
+                    <input type="number" name="discount" id="editDiscount" min="0" style="width: 100%; padding: 10px; background: rgba(255,255,255,0.05); border: 1px solid #333; border-radius: 8px; color: #fff;">
+                </div>
+                <div style="margin-bottom: 15px; padding: 10px; background: rgba(0,229,255,0.05); border-radius: 8px; border: 1px dashed var(--primary-neon);">
+                    <label style="display: block; color: var(--primary-neon); margin-bottom: 5px; font-weight: 800;">Final Price: <span id="editFinalPreview">₹0.00</span></label>
+                </div>
+                <div style="margin-bottom: 25px;">
+                    <label style="display: block; color: var(--text-dim); margin-bottom: 5px;">Change Package Image (Optional)</label>
+                    <input type="file" name="image" accept="image/*" style="width: 100%; padding: 10px; background: rgba(255,255,255,0.05); border: 1px solid #333; border-radius: 8px; color: #fff;">
+                    <p style="font-size: 0.8rem; color: #00e5ff; margin-top: 5px;">Leave empty to keep current image</p>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button type="submit" class="btn-primary" style="flex: 1; padding: 12px; border-radius: 8px; cursor: pointer;">Update Package</button>
+                    <button type="button" onclick="document.getElementById('editModal').style.display='none'" style="flex: 1; background: #333; border: none; color: #fff; padding: 12px; border-radius: 8px; cursor: pointer;">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function updateFinalPrice(priceId, discountId, previewId) {
+            const price = parseFloat(document.getElementById(priceId).value) || 0;
+            const discount = parseFloat(document.getElementById(discountId).value) || 0;
+            const final = Math.max(0, price - discount);
+            document.getElementById(previewId).innerText = '₹' + final.toLocaleString('en-IN', { minimumFractionDigits: 2 });
+        }
+
+        // Add event listeners for the 'Add' modal
+        document.getElementById('addPrice')?.addEventListener('input', () => updateFinalPrice('addPrice', 'addDiscount', 'addFinalPreview'));
+        document.getElementById('addDiscount')?.addEventListener('input', () => updateFinalPrice('addPrice', 'addDiscount', 'addFinalPreview'));
+
+        // Add event listeners for the 'Edit' modal
+        document.getElementById('editPrice')?.addEventListener('input', () => updateFinalPrice('editPrice', 'editDiscount', 'editFinalPreview'));
+        document.getElementById('editDiscount')?.addEventListener('input', () => updateFinalPrice('editPrice', 'editDiscount', 'editFinalPreview'));
+
+        function openEditModal(pkg) {
+            const modal = document.getElementById('editModal');
+            const form = document.getElementById('editForm');
+            
+            // Set form action
+            form.action = `/admin/topups/${pkg.id}`;
+            
+            // Fill fields
+            document.getElementById('editAmount').value = pkg.amount;
+            document.getElementById('editBonus').value = pkg.bonus || 0;
+            document.getElementById('editPrice').value = pkg.price;
+            document.getElementById('editDiscount').value = pkg.discount || 0;
+            
+            // Trigger initial calculation for preview
+            updateFinalPrice('editPrice', 'editDiscount', 'editFinalPreview');
+            
+            // Show modal
+            modal.style.display = 'flex';
+        }
+    </script>
+</div>

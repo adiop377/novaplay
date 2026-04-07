@@ -1,0 +1,48 @@
+<section class="container section">
+    <div class="section-header">
+        <h2 class="section-title">Sold <span class="neon-text-red">Out</span> History</h2>
+        <p style="text-align: center; color: var(--text-dim); margin-top: -40px; margin-bottom: 50px;">
+            Check out the premium accounts and top-ups that have been successfully delivered.
+        </p>
+    </div>
+
+    <div class="id-grid">
+        <% if (history && history.length > 0) { %>
+            <% history.forEach(function(item) { %>
+                <div class="id-card sold-out-card" style="opacity: 0.9; position: relative; <%= item.type === 'topup' ? 'background: linear-gradient(145deg, #0a0a14, #1a1a2e);' : '' %>">
+                    <% if (item.type === 'id') { %>
+                        <img src="<%= (item.cover_image) ? item.cover_image : ((item.images && item.images.length > 0) ? item.images[0] : '/images/placeholder.jpg') %>" alt="<%= item.title %>">
+                        <div class="id-tag" style="background: rgba(255,0,0,0.1); border: 1px solid var(--accent-red); color: var(--accent-red); font-size: 0.7rem;">SOLD ID</div>
+                    <% } else { %>
+                        <div style="height: 200px; display: flex; align-items: center; justify-content: center; font-size: 5rem; background: radial-gradient(circle at center, rgba(0, 229, 255, 0.1) 0%, transparent 70%);">💎</div>
+                        <div class="id-tag" style="background: rgba(0, 229, 255, 0.1); border: 1px solid var(--primary-neon); color: var(--primary-neon); font-size: 0.7rem;">TOPUP DONE</div>
+                    <% } %>
+
+                    <div class="id-details">
+                        <% if (item.type === 'id') { %>
+                            <div class="stats">
+                                <span>Rank: <%= item.rank %></span>
+                                <span>Lvl: <%= item.level %></span>
+                            </div>
+                        <% } %>
+                        <h3>
+                            <%= item.title %>
+                        </h3>
+
+                        <div class="price-row">
+                            <span class="price" style="color: #fff; font-weight: 800;">₹<%= item.price.toLocaleString('en-IN') %></span>
+                            <span style="font-size: 0.7rem; color: var(--text-dim);"><%= new Date(item.updated_at).toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'}) %></span>
+                        </div>
+                    </div>
+                </div>
+            <% }); %>
+        <% } else { %>
+            <div style="grid-column: 1/-1; text-align: center; padding: 100px 20px;">
+                <div style="font-size: 3rem; margin-bottom: 20px;">🕸️</div>
+                <h3>No sold items yet</h3>
+                <p style="color: var(--text-dim)">Be the first to buy!</p>
+                <a href="/" class="btn btn-primary" style="margin-top: 20px;">Browse Available IDs</a>
+            </div>
+        <% } %>
+    </div>
+</section>

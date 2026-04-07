@@ -1,0 +1,80 @@
+<div class="admin-table-wrapper">
+    <table class="admin-table">
+        <thead>
+            <tr>
+                <th>Order ID</th>
+                <th>Customer</th>
+                <th>Player ID / UID</th>
+                <th>Total</th>
+                <th>Status</th>
+                <th>Payment Status</th>
+                <th>Date</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% if (orders && orders.length> 0) { %>
+                <% orders.forEach(function(order) { %>
+                    <tr>
+                        <td>#<%= order.id %>
+                        </td>
+                        <td>
+                            <strong>
+                                <%= order.user_name || 'N/A' %>
+                            </strong><br>
+                            <small>
+                                <%= order.user_email || '' %>
+                            </small>
+                        </td>
+                        <td>
+                            <% if (order.player_id) { %>
+                                <span class="uid-text"><%= order.player_id %></span>
+                            <% } else { %>
+                                <small>Store Item</small>
+                            <% } %>
+                        </td>
+                        <td>₹<%= parseFloat(order.total).toLocaleString('en-IN') %>
+                        </td>
+                        <td>
+                            <span class="status-badge <%= order.status %>">
+                                <%= order.status %>
+                            </span>
+                        </td>
+                        <td>
+                            <span class="payment-badge <%= order.payment_status %>">
+                                <%= order.payment_status %>
+                            </span>
+                        </td>
+                        <td>
+                            <%= new Date(order.created_at).toLocaleDateString('en-IN') %>
+                        </td>
+                        <td>
+                            <form action="/admin/orders/<%= order.id %>/status" method="POST" class="inline-form">
+                                <select name="status" onchange="this.form.submit()">
+                                    <option value="">Change Status</option>
+                                    <option value="pending">Pending</option>
+                                    <option value="confirmed">Confirmed</option>
+                                    <option value="delivered">Delivered</option>
+                                    <option value="cancelled">Cancelled</option>
+                                    <option value="reavailable">Re-Available</option>
+                                </select>
+                            </form>
+                            <form action="/admin/orders/<%= order.id %>/status" method="POST" class="inline-form">
+                                <select name="paymentStatus" onchange="this.form.submit()">
+                                    <option value="">Payment</option>
+                                    <option value="pending">Pending</option>
+                                    <option value="paid">Paid</option>
+                                    <option value="failed">Failed</option>
+                                </select>
+                            </form>
+                        </td>
+                    </tr>
+                    <% }); %>
+                        <% } else { %>
+                            <tr>
+                                <td colspan="8" style="text-align: center; padding: 40px;">No orders found.</td>
+                            </tr>
+                            <% } %>
+        </tbody>
+    </table>
+</div>

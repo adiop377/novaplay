@@ -1,0 +1,179 @@
+<!-- views/pages/checkout-payment.ejs -->
+<section class="checkout-section container section" style="padding-top: 130px;">
+    <h2 class="section-title">Complete <span class="neon-text-green">Payment</span></h2>
+
+    <div class="checkout-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px;">
+        <!-- Order Summary -->
+        <div class="order-summary card-theme" style="background: var(--card-bg); padding: 30px; border-radius: 20px; border: 1px solid var(--glass-border);">
+            <h3 style="margin-bottom: 20px; color: var(--primary-neon);">Order Summary (Order #<%= order.id %>)</h3>
+            
+            <div class="checkout-items" style="margin-bottom: 20px;">
+                <% order.items.forEach(function(item) { %>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 15px; border-bottom: 1px solid #333; padding-bottom: 15px;">
+                        <span style="font-weight: 500;"><%= item.title %></span>
+                        <strong style="color: var(--primary-neon);">₹<%= parseFloat(item.price).toLocaleString('en-IN') %></strong>
+                    </div>
+                <% }); %>
+            </div>
+            
+            <div class="total-row" style="display: flex; justify-content: space-between; font-size: 1.5rem; font-weight: bold; margin-top: 20px;">
+                <span>Total Amount:</span>
+                <span style="color: var(--primary-neon);">₹<%= parseFloat(order.total).toLocaleString('en-IN') %></span>
+            </div>
+        </div>
+
+        <!-- Payment Actions -->
+        <div class="payment-actions card-theme" style="background: var(--card-bg); padding: 30px; border-radius: 20px; border: 1px solid var(--glass-border);">
+            <h3 style="margin-bottom: 20px;">Billing Details & Payment</h3>
+
+            <div class="form-group" style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 5px; color: var(--text-dim);">Full Name</label>
+                <input type="text" id="custName" value="<%= order.user_name %>" class="form-input" style="width: 100%; padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); color: #fff; border-radius: 8px;">
+            </div>
+
+            <div class="form-group" style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 5px; color: var(--text-dim);">Email Address</label>
+                <input type="email" id="custEmail" value="<%= order.user_email %>" class="form-input" style="width: 100%; padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); color: #fff; border-radius: 8px;">
+            </div>
+
+            <div class="form-group" style="margin-bottom: 30px;">
+                <label style="display: block; margin-bottom: 5px; color: var(--text-dim);">WhatsApp Number</label>
+                <input type="tel" id="custPhone" placeholder="Enter WhatsApp Number" class="form-input" style="width: 100%; padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); color: #fff; border-radius: 8px;">
+            </div>
+
+            <!-- Skip Razorpay as per user preference (QR Only) -->
+            <!-- <button id="rzp-button1" class="btn-primary" style="width: 100%; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 20px;">
+                Pay with Razorpay 🔒
+            </button> -->
+            
+            <div style="text-align: center; margin: 20px 0; color: var(--text-dim); position: relative;">
+                <div style="position: absolute; top: 50%; left: 0; right: 0; border-top: 1px solid var(--glass-border); z-index: 1;"></div>
+                <span style="background: var(--card-bg); padding: 0 10px; position: relative; z-index: 2;">OR</span>
+            </div>
+            
+            <!-- Manual UPI Section (Shown by default) -->
+            <div id="manual-upi-section" style="display: block; margin-top: 10px; text-align: center; border-top: 1px solid var(--glass-border); padding-top: 20px;">
+                <h4 style="margin-bottom: 15px; font-size: 1.1rem; color: var(--text-main);">Scan to Pay via Any UPI App</h4>
+                <div style="background: transparent; display: inline-block; margin-bottom: 15px;">
+                    <img src="/images/upi-qr.jpg" alt="UPI QR Code" style="width: 250px; border-radius: 15px; box-shadow: 0 0 20px rgba(0, 229, 255, 0.2); border: 2px solid var(--primary-neon);">
+                </div>
+                <p style="font-size: 0.9rem; color: var(--text-dim); margin-bottom: 15px;">After payment, send your screenshot to the admin on WhatsApp.</p>
+                
+                <a href="https://wa.me/919999999999?text=Hi, I have paid ₹<%= order.total %> for Order #<%= order.id %> (Email: <%= order.user_email %>). Please confirm my order!" 
+                   target="_blank" class="btn-primary" style="display: block; width: 100%; text-decoration: none; margin-bottom: 10px; background: #25D366; border: none;">
+                    Send Screenshot to Admin ✅
+                </a>
+                
+                <a href="/orders" class="btn-secondary" style="display: block; width: 100%; text-decoration: none; border: 1px solid var(--glass-border);">Go to My Orders 🛒</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Mobile responsiveness -->
+<style>
+    @media (max-width: 768px) {
+        .checkout-grid {
+            grid-template-columns: 1fr !important;
+        }
+    }
+</style>
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+    document.getElementById('manual-upi-btn').addEventListener('click', function() {
+        const upiSection = document.getElementById('manual-upi-section');
+        upiSection.style.display = upiSection.style.display === 'none' ? 'block' : 'none';
+    });
+
+    document.getElementById('rzp-button1').onclick = async function (e) {
+        e.preventDefault();
+        const btn = this;
+        btn.innerHTML = 'Processing...';
+        btn.disabled = true;
+
+        if(!document.getElementById('custPhone').value) {
+            alert('Please enter your WhatsApp number first.');
+            btn.innerHTML = 'Pay with Razorpay 🔒';
+            btn.disabled = false;
+            return;
+        }
+
+        try {
+            // First, create the order on backend
+            const response = await fetch('/payment/create-razorpay-order', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ orderId: <%= order.id %> })
+            });
+
+            const data = await response.json();
+            
+            if (!data.success) {
+                alert('Order creation failed on server');
+                btn.innerHTML = 'Pay with Razorpay 🔒';
+                btn.disabled = false;
+                return;
+            }
+
+            const options = {
+                "key": "<%= razorpayKeyId %>", // Enter the Key ID generated from the Dashboard
+                "amount": data.order.amount, 
+                "currency": "INR",
+                "name": "PlayNova",
+                "description": "Purchase FF Account",
+                "image": "https://img.icons8.com/color/48/000000/razorpay.png", // Demo logo
+                "order_id": data.order.id, 
+                "handler": async function (response){
+                    // Alert to user it's verifying
+                    btn.innerHTML = 'Verifying...';
+                    
+                    // Verify signature
+                    const verifyRes = await fetch('/payment/verify', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            razorpay_order_id: response.razorpay_order_id,
+                            razorpay_payment_id: response.razorpay_payment_id,
+                            razorpay_signature: response.razorpay_signature,
+                            db_order_id: <%= order.id %>
+                        })
+                    });
+                    
+                    const verifyData = await verifyRes.json();
+                    if(verifyData.success) {
+                        window.location.href = verifyData.redirectUrl;
+                    } else {
+                        alert("Payment verification failed. Please contact support.");
+                        btn.innerHTML = 'Pay with Razorpay 🔒';
+                        btn.disabled = false;
+                    }
+                },
+                "prefill": {
+                    "name": document.getElementById('custName').value,
+                    "email": document.getElementById('custEmail').value,
+                    "contact": document.getElementById('custPhone').value
+                },
+                "theme": {
+                    "color": "#00e5ff"
+                }
+            };
+
+            const rzp1 = new Razorpay(options);
+            
+            rzp1.on('payment.failed', function (response){
+                alert("Payment Cancelled or Failed. Reason: " + response.error.description);
+                btn.innerHTML = 'Pay with Razorpay 🔒';
+                btn.disabled = false;
+            });
+
+            rzp1.open();
+
+        } catch (error) {
+            console.error(error);
+            alert("Payment initiation failed!");
+            btn.innerHTML = 'Pay with Razorpay 🔒';
+            btn.disabled = false;
+        }
+    }
+</script>

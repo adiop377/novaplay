@@ -1,0 +1,392 @@
+<section class="topup-page" style="padding-top: 150px; min-height: 100vh; position: relative;">
+    <!-- Background Animations (Same as Home) -->
+    <div class="hero-bg-animations">
+        <div class="bubbles">
+            <div class="bubble"></div><div class="bubble"></div><div class="bubble"></div><div class="bubble"></div>
+            <div class="bubble"></div><div class="bubble"></div><div class="bubble"></div><div class="bubble"></div>
+        </div>
+        <div class="glow-orb orb-1" style="background: rgba(0, 229, 255, 0.1);"></div>
+        <div class="glow-orb orb-2" style="background: rgba(160, 32, 240, 0.1);"></div>
+    </div>
+
+    <div class="container" style="position: relative; z-index: 2;">
+        
+        <!-- HEADER SECTION -->
+        <div style="text-align: center; margin-bottom: 60px;">
+            <div class="hero-badge fade-up visible" style="display: inline-flex; align-items: center; gap: 8px; padding: 8px 24px; border: 1px solid rgba(0, 229, 255, 0.4); border-radius: 50px; color: #00e5ff; font-size: 0.85rem; font-weight: 800; margin-bottom: 20px; background: rgba(0, 229, 255, 0.05); backdrop-filter: blur(10px); text-transform: uppercase;">
+                💎 FREE FIRE DIRECT TOPUP
+            </div>
+            <h1 class="fade-up visible" style="font-family: 'Orbitron', sans-serif; font-size: 3.5rem; margin-bottom: 10px; line-height: 1.1;">
+                DOUBLE <span style="background: linear-gradient(135deg, #00e5ff 0%, #2979ff 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;">DIAMONDS</span> EVENT
+            </h1>
+            <p style="color: var(--text-dim); margin-bottom: 20px;">Instant delivery to your UID. Verified & Secure.</p>
+        
+        <!-- Premium Warning Ticker -->
+        <div class="warning-ticker-container">
+            <div class="ticker-content">
+                <span class="ticker-text"><i class="ri-error-warning-fill"></i> NOTE: PLEASE VERIFY THE CORRECT PLAYER ID BEFORE TOPUP. WE ARE NOT RESPONSIBLE FOR WRONG UIDS. &nbsp;&nbsp;&nbsp;&nbsp; <i class="ri-error-warning-fill"></i> NOTE: PLEASE VERIFY THE CORRECT PLAYER ID BEFORE TOPUP. WE ARE NOT RESPONSIBLE FOR WRONG UIDS.</span>
+            </div>
+        </div>
+        </div>
+
+<style>
+    @keyframes pulseRed {
+        0% { opacity: 0.6; transform: scale(1); text-shadow: 0 0 0px #ff4444; }
+        50% { opacity: 1; transform: scale(1.02); text-shadow: 0 0 10px #ff4444; }
+        100% { opacity: 0.6; transform: scale(1); text-shadow: 0 0 0px #ff4444; }
+    }
+
+    .warning-ticker-container {
+        width: 100%;
+        max-width: 800px;
+        margin: 0 auto 30px;
+        background: rgba(255, 68, 68, 0.05);
+        border: 1px solid rgba(255, 68, 68, 0.2);
+        border-radius: 30px;
+        padding: 10px 0;
+        overflow: hidden;
+        white-space: nowrap;
+        position: relative;
+        box-shadow: 0 0 15px rgba(255, 68, 68, 0.1);
+    }
+
+    .ticker-content {
+        display: inline-block;
+        padding-left: 100%;
+        animation: tickerMove 25s linear infinite;
+    }
+
+    .ticker-text {
+        font-family: 'Rajdhani', sans-serif;
+        font-weight: 700;
+        font-size: 0.95rem;
+        color: #ff4444;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    @keyframes tickerMove {
+        0% { transform: translate3d(0, 0, 0); }
+        100% { transform: translate3d(-100%, 0, 0); }
+    }
+</style>
+
+        <!-- UID SCANNER (MOVED TO TOP) -->
+        <div class="uid-scanner-container fade-up visible" style="max-width: 800px; margin: 0 auto 80px auto;">
+            <div class="pyara-search-card" style="background: rgba(15, 15, 20, 0.8); border: 1px solid rgba(0, 229, 255, 0.4); border-radius: 24px; padding: 30px; backdrop-filter: blur(20px); box-shadow: 0 15px 35px rgba(0,0,0,0.5), 0 0 20px rgba(0, 229, 255, 0.1);">
+                <h3 style="font-family: 'Orbitron', sans-serif; font-size: 0.9rem; color: #00e5ff; letter-spacing: 2px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+                    <span style="display: inline-block; width: 8px; height: 8px; background: #00e5ff; border-radius: 50%; box-shadow: 0 0 10px #00e5ff;"></span>
+                    ENTER PLAYER ID BEFORE TOPUP
+                </h3>
+
+                <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                    <div style="flex: 1; min-width: 250px;">
+                        <input type="text" id="uidInput" placeholder="Enter Free Fire UID (e.g. 2571107897)" 
+                               style="width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); padding: 16px 20px; border-radius: 12px; color: #fff; font-size: 1rem; outline: none; transition: 0.3s; border-left: 4px solid #00e5ff;">
+                    </div>
+                    <button id="scanBtn" class="btn btn-primary" style="padding: 0 40px; border-radius: 12px; font-weight: 800; height: 55px; display: flex; align-items: center; gap: 10px; background: #00e5ff; color: #000;">
+                        VERIFY UID <i class="fas fa-check-circle">✅</i>
+                    </button>
+                </div>
+
+                <!-- Result Area -->
+                <div id="scanResult" style="margin-top: 25px; display: none; text-align: center; animation: fadeIn 0.5s ease;">
+                    <div id="scannerLoader" style="display: none; padding: 20px;">
+                        <div class="loader-spinner" style="width: 30px; height: 30px; border: 3px solid rgba(0, 229, 255, 0.2); border-top-color: #00e5ff; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto;"></div>
+                        <p style="color: #00e5ff; font-size: 0.8rem; margin-top: 10px; font-family: 'Orbitron', sans-serif;">VERIFYING PLAYER DATA...</p>
+                    </div>
+                    <div id="profileBrief" style="background: rgba(0, 229, 255, 0.05); border: 1px solid rgba(0, 229, 255, 0.2); border-radius: 15px; padding: 15px; display: none; margin-bottom: 20px;">
+                        <p style="color: #fff; margin: 0; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 10px;">
+                            <span style="color: #00ff88;">✅ Player Verified</span> | <span id="playerNameDisplay" style="color: #00e5ff;">---</span>
+                        </p>
+                    </div>
+
+                    <div id="ffProfileCard" style="display: none; position: relative; margin: 0 auto 30px; width: fit-content; max-width: 100%;">
+                        <img id="profileCardImg" src="" alt="Profile Card" style="max-width: 100%; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 2px solid rgba(255,255,255,0.1); display: block;">
+                        
+                        <!-- Overlay Likes Inside the Real Image (Top Right) -->
+                        <div style="position: absolute; top: 8px; right: 8px; font-family: 'Rajdhani', sans-serif; font-size: 0.9rem; color: #fff; font-weight: 800; text-shadow: 0 1px 4px #000, 0 1px 2px #000; display: flex; align-items: center; gap: 4px;">
+                            <span style="font-size: 0.85rem;">👍</span> <span id="overlayLikesValue">0</span>
+                        </div>
+                    </div>
+                    <p id="scanError" style="color: #ff4444; font-size: 0.9rem; display: none; margin-top: 10px;">Invalid UID or Player not found. Please try again.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- DIAMOND PACKS GRID -->
+        <div class="topup-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 30px; padding-bottom: 100px;">
+            
+            <% if (typeof packages !== 'undefined' && packages.length > 0) { %>
+                <% packages.forEach((pkg, index) => { %>
+                    <% 
+                        let finalPrice = parseFloat(pkg.price) - parseFloat(pkg.discount);
+                    %>
+                    <div class="topup-card" onclick="selectPack(<%= pkg.amount + pkg.bonus %>, <%= finalPrice %>)">
+                        <% if (pkg.discount > 0) { %>
+                            <div class="discount-tag">₹<%= pkg.discount %> OFF</div>
+                        <% } %>
+                        <div class="pack-header">
+                            <span class="dia-icon">💎</span> <%= pkg.amount %> <%= pkg.bonus > 0 ? '+ ' + pkg.bonus : '' %>
+                        </div>
+                        <div class="pack-img-container">
+                            <img src="<%= pkg.image_url || '/images/topup/520.png' %>" alt="<%= pkg.amount %> Diamonds" class="pack-img">
+                        </div>
+                        <div class="price-container" style="background: #fdf001; padding: 10px; clip-path: polygon(0 0, 100% 0, 100% 80%, 95% 100%, 0 100%);">
+                            <% if (pkg.discount > 0) { %>
+                                <div style="display: flex; flex-direction: column; align-items: center; margin-bottom: 4px;">
+                                    <span style="text-decoration: line-through; color: rgba(0,0,0,0.4); font-size: 0.8rem; font-weight: 700;">₹<%= parseFloat(pkg.price).toFixed(2) %></span>
+                                    <span style="color: #d32f2f; font-size: 0.75rem; font-weight: 800;">- ₹<%= parseFloat(pkg.discount).toFixed(2) %> OFF</span>
+                                </div>
+                            <% } %>
+                            <button class="pack-btn" style="background: none; padding: 0; clip-path: none; color: #000; font-weight: 900; font-size: 1.4rem;">₹<%= finalPrice.toFixed(2) %></button>
+                        </div>
+                    </div>
+                <% }); %>
+            <% } else { %>
+                <div style="grid-column: 1/-1; text-align: center; color: var(--text-dim); padding: 50px;">
+                    No packs available. Please check back later!
+                </div>
+            <% } %>
+
+        </div>
+    </div>
+</section>
+
+<style>
+    .topup-card {
+        background: rgba(20, 20, 40, 0.4);
+        border: 2px solid rgba(255, 255, 255, 0.05); /* Hidden borders like reference */
+        border-radius: 8px;
+        padding: 0; /* Padding will be managed by inner layout */
+        text-align: center;
+        transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        cursor: pointer;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        aspect-ratio: 1/1;
+        position: relative;
+    }
+
+    .topup-card:hover {
+        border-color: #00e5ff;
+        transform: translateY(-8px);
+        box-shadow: 0 0 30px rgba(0, 229, 255, 0.2);
+        background: rgba(0, 229, 255, 0.05);
+    }
+
+    .discount-tag {
+        position: absolute;
+        top: 10px;
+        left: -10px;
+        background: linear-gradient(135deg, #ff9800, #f44336);
+        color: white;
+        padding: 5px 15px;
+        font-weight: 800;
+        font-size: 0.8rem;
+        border-radius: 4px;
+        transform: rotate(-5deg);
+        z-index: 10;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        font-family: 'Rajdhani', sans-serif;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .pack-header {
+        background: rgba(0,0,0,0.4);
+        font-family: 'Orbitron', sans-serif;
+        color: #00e5ff;
+        padding: 10px;
+        font-weight: 800;
+        font-size: 1.2rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        border-bottom: 2px solid rgba(0, 229, 255, 0.2);
+    }
+
+    .dia-icon { font-size: 1rem; }
+
+    .pack-img-container {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+    }
+
+    .pack-img {
+        max-width: 80%;
+        max-height: 120px;
+        filter: drop-shadow(0 10px 20px rgba(0,0,0,0.5));
+        transition: 0.5s;
+    }
+
+    .topup-card:hover .pack-img {
+        transform: scale(1.1) rotate(5deg);
+    }
+
+    .pack-btn {
+        background: #fdf001; /* Matching yellow button from ref */
+        color: #000;
+        border: none;
+        width: 100%;
+        padding: 15px;
+        font-weight: 900;
+        font-size: 1.3rem;
+        cursor: pointer;
+        font-family: 'Rajdhani', sans-serif;
+        clip-path: polygon(0 0, 100% 0, 100% 80%, 95% 100%, 0 100%);
+    }
+
+    /* Scanner Animations */
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* Custom Ticks for verified player */
+    #profileBrief i {
+        animation: scaleIn 0.3s forwards;
+    }
+
+    @keyframes scaleIn {
+        from { transform: scale(0); }
+        to { transform: scale(1); }
+    }
+</style>
+
+<script>
+    // UID VERIFICATION LOGIC (Same as Home but customized for Topup)
+    document.getElementById('scanBtn').addEventListener('click', function() {
+        const uid = document.getElementById('uidInput').value.trim();
+        const resultDiv = document.getElementById('scanResult');
+        const loader = document.getElementById('scannerLoader');
+        const img = document.getElementById('profileCardImg');
+        const error = document.getElementById('scanError');
+        const brief = document.getElementById('profileBrief');
+        const nameDisplay = document.getElementById('playerNameDisplay');
+        const ffCard = document.getElementById('ffProfileCard');
+
+        if (!uid) {
+            return Swal.fire({ icon: 'warning', title: 'UID Required', text: 'Please enter your Player ID first!', background: '#1a1b2e', color: '#fff' });
+        }
+
+        // Show UI states
+        resultDiv.style.display = 'block';
+        loader.style.display = 'block';
+        ffCard.style.display = 'none';
+        error.style.display = 'none';
+        brief.style.display = 'none';
+
+        // Secure backend proxy URL
+        const proxyUrl = `/api/verify-uid/${uid}`;
+
+        fetch(proxyUrl)
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    if (data.uid) document.getElementById('uidInput').value = data.uid;
+                    
+                    // Show compact verification text
+                    nameDisplay.innerText = data.name;
+
+                    // Overlay likes inside the image block
+                    document.getElementById('overlayLikesValue').innerText = data.likes;
+                    
+                    // Load actual original proxy image which contains avatar & banner background natively
+                    img.onload = function() {
+                        loader.style.display = 'none';
+                        ffCard.style.display = 'block';
+                        brief.style.display = 'block';
+                        
+                        const grid = document.querySelector('.topup-grid');
+                        if (grid) window.scrollTo({ top: grid.offsetTop - 150, behavior: 'smooth' });
+                    };
+                    
+                    img.onerror = function() {
+                        loader.style.display = 'none';
+                        error.style.display = 'block';
+                    };
+                    
+                    // Assign image
+                    img.src = data.imagePath + "?t=" + new Date().getTime();
+                } else {
+                    loader.style.display = 'none';
+                    error.style.display = 'block';
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                loader.style.display = 'none';
+                error.style.display = 'block';
+            });
+    });
+
+    async function selectPack(amount, price) {
+        const uid = document.getElementById('uidInput').value.trim();
+        if (!uid) {
+            Swal.fire({
+                icon: 'error',
+                title: 'UID Missing!',
+                text: 'Enter your Player ID at the top before choosing a pack.',
+                background: '#1a1b2e',
+                color: '#fff',
+                confirmButtonColor: '#00e5ff'
+            });
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            return;
+        }
+
+        // Logic to redirect to payment
+        const result = await Swal.fire({
+            title: 'Confirm Topup',
+            html: `<div style="text-align: left; padding: 10px;">
+                    <p><b>Player ID:</b> ${uid}</p>
+                    <p><b>Amount:</b> 💎 ${amount} Diamonds</p>
+                    <p><b>Price:</b> ₹${price}</p>
+                   </div>`,
+            showCancelButton: true,
+            confirmButtonText: 'Proceed to Payment 🔒',
+            background: '#1a1b2e',
+            color: '#fff',
+            confirmButtonColor: '#00e5ff'
+        });
+
+        if (result.isConfirmed) {
+            try {
+                const response = await fetch('/topup/order', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ amount, price, uid })
+                });
+
+                if (response.status === 401) {
+                    return Swal.fire({
+                        icon: 'info',
+                        title: 'Login Required',
+                        text: 'Please login to complete your order.',
+                        showCancelButton: true,
+                        confirmButtonText: 'Login Now',
+                        background: '#1a1b2e',
+                        color: '#fff'
+                    }).then(res => {
+                        if(res.isConfirmed) window.location.href = '/login';
+                    });
+                }
+
+                const data = await response.json();
+                if (data.success) {
+                    window.location.href = `/payment/checkout/${data.orderId}`;
+                } else {
+                    throw new Error(data.message);
+                }
+            } catch (error) {
+                console.error(error);
+                Swal.fire({ icon: 'error', title: 'Error', text: error.message || 'Something went wrong!', background: '#1a1b2e', color: '#fff' });
+            }
+        }
+    }
+</script>

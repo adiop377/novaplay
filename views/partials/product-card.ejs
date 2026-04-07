@@ -1,0 +1,66 @@
+<div class="id-card fade-up active">
+    <% if (product.tag) { %>
+        <div class="id-tag" <%= product.rank === 'Master' ? 'style="background: var(--secondary-neon);"' : '' %>>
+            <%= product.tag %>
+        </div>
+    <% } %>
+    <% if (product.discount > 0) { %>
+        <div class="discount-badge-card" style="position: absolute; top: 10px; right: 10px; background: linear-gradient(135deg, #ff0055, #ff4444); color: white; padding: 4px 12px; border-radius: 50px; font-weight: 800; font-size: 0.7rem; z-index: 5; box-shadow: 0 0 15px rgba(255, 0, 85, 0.4); border: 1px solid rgba(255,255,255,0.2); text-transform: uppercase;">
+            SAVE ₹<%= product.discount.toLocaleString('en-IN') %>
+        </div>
+    <% } %>
+
+            <% if (product.cover_image) { %>
+                <img src="<%= product.cover_image %>" alt="<%= product.title %>">
+            <% } else if (product.images && product.images.length > 0) { %>
+                <img src="<%= product.images[0] %>" alt="<%= product.title %>">
+            <% } else { %>
+                <img src="https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&q=80&w=400" alt="<%= product.title %>">
+            <% } %>
+
+                        <div class="id-details">
+                            <h3>
+                                <%= product.title %>
+                            </h3>
+                            <div class="stats">
+                                <span><i class="icon">🏆</i>
+                                    <%= product.rank %>
+                                </span>
+                                <span><i class="icon">🔥</i> LVL <%= product.level %></span>
+                            </div>
+                            <div class="rare-skins">
+                                <% if (product.skins && product.skins.length> 0) { %>
+                                    <% product.skins.forEach(function(skin) { %>
+                                        <span class="skin-tag">
+                                            <%= skin %>
+                                        </span>
+                                        <% }); %>
+                                            <% } %>
+                            </div>
+                        <div class="price-row" style="margin-top: 15px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 15px;">
+                            <div class="price-wrap" style="display: flex; flex-direction: column; align-items: flex-start; gap: 2px;">
+                                <% if (product.discount > 0) { 
+                                    let finalPrice = parseFloat(product.price) - parseFloat(product.discount);
+                                %>
+                                    <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 2px;">
+                                        <span style="text-decoration: line-through; color: rgba(255,255,255,0.3); font-size: 0.85rem; font-weight: 600;">₹<%= parseFloat(product.price).toLocaleString('en-IN') %></span>
+                                        <span style="color: #ff4444; font-size: 0.75rem; font-weight: 700; background: rgba(255,68,68,0.1); padding: 2px 6px; border-radius: 4px;">- ₹<%= parseFloat(product.discount).toLocaleString('en-IN') %></span>
+                                    </div>
+                                    <span class="price" style="font-size: 1.8rem; font-weight: 900; background: linear-gradient(135deg, #00e5ff, #fff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: 0 0 20px rgba(0, 229, 255, 0.3); line-height: 1.2;">
+                                        ₹<%= finalPrice.toLocaleString('en-IN') %>
+                                    </span>
+                                <% } else { %>
+                                    <span class="price" style="font-size: 1.8rem; font-weight: 900; background: linear-gradient(135deg, #00e5ff, #fff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: 0 0 20px rgba(0, 229, 255, 0.3); line-height: 1.2;">
+                                        ₹<%= parseFloat(product.price).toLocaleString('en-IN') %>
+                                    </span>
+                                <% } %>
+                            </div>
+                            <div class="card-actions">
+                                <a href="/cart/add/<%= product.id %>" class="btn-buy" style="padding: 12px 28px; font-weight: 800; border-radius: 50px; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 4px 15px rgba(0, 229, 255, 0.2);">Buy Now</a>
+                            </div>
+                        </div>
+                        <div style="margin-top: 15px; text-align: center;">
+                            <a href="/products/<%= product.id %>" class="btn-buy" style="text-decoration: none; display: inline-block; width: 100%;">View Collection</a>
+                        </div>
+                    </div>
+</div>

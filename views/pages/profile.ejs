@@ -1,0 +1,49 @@
+<section class="profile-section container section">
+    <h2 class="section-title">My <span class="neon-text-green">Profile</span></h2>
+
+    <div class="profile-grid">
+        <!-- Update Profile -->
+        <div class="profile-card">
+            <h3>Profile Information</h3>
+            <form action="/profile" method="POST" class="auth-form">
+                <div class="input-group">
+                    <label for="name">Full Name</label>
+                    <input type="text" id="name" name="name" value="<%= profile.name %>" required>
+                </div>
+                <div class="input-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" name="email" value="<%= profile.email %>" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Update Profile</button>
+            </form>
+        </div>
+
+        <!-- Change Password -->
+        <div class="profile-card">
+            <h3>Change Password</h3>
+            <form action="/profile/password" method="POST" class="auth-form">
+                <div class="input-group">
+                    <label for="currentPassword">Current Password</label>
+                    <input type="password" id="currentPassword" name="currentPassword"
+                        placeholder="Enter current password" required>
+                </div>
+                <div class="input-group">
+                    <label for="newPassword">New Password</label>
+                    <input type="password" id="newPassword" name="newPassword" placeholder="Min 6 characters" required
+                        minlength="6">
+                </div>
+                <div class="input-group">
+                    <label for="confirmPassword">Confirm New Password</label>
+                    <input type="password" id="confirmPassword" name="confirmPassword"
+                        placeholder="Confirm new password" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Change Password</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="profile-links">
+        <a href="/orders" class="btn btn-secondary">📦 View My Orders</a>
+        <a href="/cart" class="btn btn-secondary">🛒 View Cart</a>
+    </div>
+</section>
