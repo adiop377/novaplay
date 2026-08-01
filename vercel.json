@@ -1,6 +1,4 @@
 {
-  "name": "adiop-ff-gaming",
-  "version": 2,
   "rewrites": [
     {
       "source": "/(.*)",
