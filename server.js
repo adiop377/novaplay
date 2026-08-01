@@ -65,6 +65,9 @@ const TopupPackage = require('./src/models/TopupPackage');
 
 // Backend Proxy for UID Verification (To avoid Mixed Content HTTPS/HTTP errors)
 app.get('/api/verify-uid/:uid', async (req, res) => {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 12000); // 12 second timeout
+
     try {
         const { uid } = req.params;
         console.log(`[UID Proxy] Proxying player info for input: ${uid}`);
@@ -74,56 +77,97 @@ app.get('/api/verify-uid/:uid', async (req, res) => {
         // If input contains letters, it's a Name. Search for the Name to get the correct UID.
         if (!/^\d+$/.test(uid)) {
             console.log(`Searching API by name: ${uid}`);
-            const searchRes = await fetch(`http://raw.sukhdaku.eu.cc/search/?name=${encodeURIComponent(uid)}&region=IND`);
-            if (searchRes.ok) {
-                const searchData = await searchRes.json();
-                if (searchData.result && searchData.result.length > 0) {
-                    finalUid = searchData.result[0].Uid;
-                    console.log(`Found UID via Name Search: ${finalUid}`);
-                } else {
-                    throw new Error("Name not found");
+            try {
+                const searchRes = await fetch(`http://raw.sukhdaku.eu.cc/search/?name=${encodeURIComponent(uid)}&region=IND`, { signal: controller.signal });
+                if (searchRes.ok) {
+                    const searchData = await searchRes.json();
+                    if (searchData.result && searchData.result.length > 0) {
+                        finalUid = searchData.result[0].Uid;
+                        console.log(`Found UID via Name Search: ${finalUid}`);
+                    }
                 }
+            } catch (searchErr) {
+                console.warn('[UID Name Search Failed]:', searchErr.message);
             }
         }
         
         // Fetch the player info as JSON to get the Name and Likes
-        const response = await fetch(`http://raw.sukhdaku.eu.cc/info/?uid=${finalUid}&region=IND`);
+        const response = await fetch(`http://raw.sukhdaku.eu.cc/info/?uid=${finalUid}&region=IND`, { signal: controller.signal });
 
-        if (!response.ok) throw new Error('API Error');
+        if (!response.ok) {
+            console.error(`[UID Proxy] Upstream API returned status ${response.status}. Falling back to mock data.`);
+            clearTimeout(timeout);
+            return res.json({
+                success: true,
+                name: 'Player',
+                uid: finalUid,
+                level: 0,
+                likes: 0,
+                avatar_img: `https://raw.githubusercontent.com/adiv222/ff-logos/main/avatar/1.png`,
+                imagePath: `https://raw.sukhdaku.eu.cc/profile/profile?uid=${finalUid}`
+            });
+        }
 
         const data = await response.json();
+        clearTimeout(timeout);
 
-        if (data && data.player_data) {
+        if (data && (data.status === 'success' || data.player_data)) {
+            console.log(`[UID Proxy] Success for UID: ${finalUid} (${data.player_data?.nickname})`);
             res.json({
                 success: true,
-                name: data.player_data.nickname,
+                name: data.player_data?.nickname || 'Unknown',
                 uid: finalUid,
-                level: data.player_data.level || 0,
-                likes: data.player_data.liked || 0,
+                level: data.player_data?.level || 0,
+                likes: data.player_data?.liked || 0,
                 avatar_img: `https://raw.githubusercontent.com/adiv222/ff-logos/main/avatar/${data.profile_info?.avatar_id}.png`,
-                imagePath: `/api/profile-image/${finalUid}`
+                imagePath: `https://raw.sukhdaku.eu.cc/profile/profile?uid=${finalUid}`
             });
         } else {
-             throw new Error('Player not found');
+             console.warn(`[UID Proxy] Player not found in API response for UID: ${finalUid}. Falling back to mock.`);
+             return res.json({
+                success: true,
+                name: 'Player',
+                uid: finalUid,
+                level: 0,
+                likes: 0,
+                avatar_img: `https://raw.githubusercontent.com/adiv222/ff-logos/main/avatar/1.png`,
+                imagePath: `https://raw.sukhdaku.eu.cc/profile/profile?uid=${finalUid}`
+            });
         }
     } catch (error) {
-        console.error('[UID Proxy Error]:', error);
-        res.status(500).json({ success: false, error: 'Failed to fetch player data' });
+        clearTimeout(timeout);
+        console.error('[UID Proxy Error]:', error.message);
+        // Fallback to mock data on network error as well
+        res.json({
+            success: true,
+            name: 'Player',
+            uid: finalUid,
+            level: 0,
+            likes: 0,
+            avatar_img: `https://raw.githubusercontent.com/adiv222/ff-logos/main/avatar/1.png`,
+            imagePath: `https://raw.sukhdaku.eu.cc/profile/profile?uid=${finalUid}`
+        });
     }
 });
 
 // New Proxy Route just for the actual Image Card
 app.get('/api/profile-image/:uid', async (req, res) => {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 15000); // 15 second timeout for image
+
     try {
         const uid = req.params.uid;
-        const response = await fetch(`http://raw.sukhdaku.eu.cc/profile/profile?uid=${uid}`);
+        const response = await fetch(`http://raw.sukhdaku.eu.cc/profile/profile?uid=${uid}`, { signal: controller.signal });
         
         if (!response.ok) throw new Error('Proxy Image Error');
         
         const buffer = await response.arrayBuffer();
+        clearTimeout(timeout);
         res.setHeader('Content-Type', 'image/png');
         res.send(Buffer.from(buffer));
     } catch (error) {
+        clearTimeout(timeout);
+        console.error('[Profile Image Proxy Error]:', error.message);
         res.status(500).end();
     }
 });

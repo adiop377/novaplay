@@ -37,8 +37,8 @@
             </div>
 
             <div class="form-group" style="margin-bottom: 30px;">
-                <label style="display: block; margin-bottom: 5px; color: var(--text-dim);">WhatsApp Number</label>
-                <input type="tel" id="custPhone" placeholder="Enter WhatsApp Number" class="form-input" style="width: 100%; padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); color: #fff; border-radius: 8px;">
+                <label style="display: block; margin-bottom: 5px; color: var(--text-dim);">Telegram/WhatsApp Number</label>
+                <input type="tel" id="custPhone" placeholder="Enter Telegram or WhatsApp Number" class="form-input" style="width: 100%; padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); color: #fff; border-radius: 8px;">
             </div>
 
             <!-- Skip Razorpay as per user preference (QR Only) -->
@@ -57,10 +57,10 @@
                 <div style="background: transparent; display: inline-block; margin-bottom: 15px;">
                     <img src="/images/upi-qr.jpg" alt="UPI QR Code" style="width: 250px; border-radius: 15px; box-shadow: 0 0 20px rgba(0, 229, 255, 0.2); border: 2px solid var(--primary-neon);">
                 </div>
-                <p style="font-size: 0.9rem; color: var(--text-dim); margin-bottom: 15px;">After payment, send your screenshot to the admin on WhatsApp.</p>
+                <p style="font-size: 0.9rem; color: var(--text-dim); margin-bottom: 15px;">After payment, send your screenshot to the admin on Telegram.</p>
                 
-                <a href="https://wa.me/919999999999?text=Hi, I have paid ₹<%= order.total %> for Order #<%= order.id %> (Email: <%= order.user_email %>). Please confirm my order!" 
-                   target="_blank" class="btn-primary" style="display: block; width: 100%; text-decoration: none; margin-bottom: 10px; background: #25D366; border: none;">
+                <a href="https://t.me/premiumffzone" 
+                   target="_blank" class="btn-primary" style="display: block; width: 100%; text-decoration: none; margin-bottom: 10px; background: #0088cc; border: none;">
                     Send Screenshot to Admin ✅
                 </a>
                 
