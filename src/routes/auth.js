@@ -18,5 +18,7 @@ router.get('/logout', authController.logout);
 router.get('/profile', isAuthenticated, authController.showProfile);
 router.post('/profile', isAuthenticated, authController.updateProfile);
 router.post('/profile/password', isAuthenticated, authController.updatePassword);
+router.post('/vip/upgrade', isAuthenticated, authController.upgradeVip);
+router.post('/user/redeem-coupon', isAuthenticated, authController.redeemCoupon);
 
 module.exports = router;

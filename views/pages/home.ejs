@@ -2,15 +2,7 @@
 <section id="home" class="hero" style="min-height: 90vh; display: flex; align-items: center; justify-content: center; position: relative; padding-top: 100px;">
     <!-- Advanced Badass Background Animations -->
     <div class="hero-bg-animations" id="parallax-bg" style="transition: transform 0.1s cubic-bezier(0.2, 0.8, 0.2, 1); will-change: transform;">
-        <!-- Bubbles -->
-        <div class="bubbles">
-            <div class="bubble"></div><div class="bubble"></div><div class="bubble"></div><div class="bubble"></div>
-            <div class="bubble"></div><div class="bubble"></div><div class="bubble"></div><div class="bubble"></div>
-            <div class="bubble"></div><div class="bubble"></div><div class="bubble"></div><div class="bubble"></div>
-            <div class="bubble"></div><div class="bubble"></div><div class="bubble"></div><div class="bubble"></div>
-            <div class="bubble"></div><div class="bubble"></div><div class="bubble"></div><div class="bubble"></div>
-        </div>
-        
+
         <div class="glow-orb orb-1"></div>
         <div class="glow-orb orb-2"></div>
         <div class="glow-orb orb-3"></div>
@@ -300,25 +292,225 @@
     </div>
 </section>
 
-<!-- Why Us Section -->
-<section id="why-us" class="why-us section">
+<!-- Why Us Section (Redesigned per Screenshot) -->
+<section id="why-us" class="why-us-section section">
     <div class="container fade-up">
-        <h2 class="section-title">Why Trust <span class="neon-text-green">Us?</span></h2>
-        <div class="features-grid">
-            <div class="feature-card">
-                <div class="icon">🔒</div>
-                <h3>Secure Payment</h3>
-                <p>100% safe and secure payment gateways with buyer protection.</p>
+        <!-- Section Header -->
+        <div class="why-us-header text-center">
+            <h2 class="why-us-title">Why Trust <span class="why-us-neon">Us?</span></h2>
+            <div class="why-us-shield-wrap">
+                <div class="why-us-shield-badge">
+                    <i class="fa-solid fa-shield-halved"></i>
+                </div>
             </div>
-            <div class="feature-card">
-                <div class="icon">⚡</div>
-                <h3>Instant Delivery</h3>
-                <p>Receive your account credentials via Email/Telegram immediately after purchase.</p>
+            <p class="why-us-subtitle">
+                We prioritize your safety, satisfaction, and gaming experience with <span class="highlight-cyan">100% transparency</span> and reliability.
+            </p>
+        </div>
+
+        <!-- 3 Main Pillars / Feature Cards -->
+        <div class="why-features-grid">
+            <!-- Card 1: Secure Payment -->
+            <div class="why-feature-card">
+                <div class="why-card-top">
+                    <div class="why-card-icon-wrap icon-amber">
+                        <i class="fa-solid fa-lock"></i>
+                    </div>
+                    <h3 class="why-card-title">Secure Payment</h3>
+                    <p class="why-card-desc">100% safe and secure payment gateways with buyer protection.</p>
+                </div>
+                <div class="why-card-badges">
+                    <div class="why-mini-badge">
+                        <i class="fa-solid fa-shield-halved text-amber"></i>
+                        <span>SSL Secured</span>
+                    </div>
+                    <div class="why-mini-badge">
+                        <i class="fa-solid fa-shield-check text-amber"></i>
+                        <span>PCI DSS Compliant</span>
+                    </div>
+                </div>
             </div>
-            <div class="feature-card">
-                <div class="icon">✅</div>
-                <h3>Verified Accounts</h3>
-                <p>We verify every single ID before listing to ensure complete safety and prevent scams.</p>
+
+            <!-- Card 2: Instant Delivery -->
+            <div class="why-feature-card">
+                <div class="why-card-top">
+                    <div class="why-card-icon-wrap icon-orange">
+                        <i class="fa-solid fa-bolt"></i>
+                    </div>
+                    <h3 class="why-card-title">Instant Delivery</h3>
+                    <p class="why-card-desc">Receive your account credentials via Email/Telegram immediately after purchase.</p>
+                </div>
+                <div class="why-card-badges">
+                    <div class="why-mini-badge">
+                        <i class="fa-regular fa-clock text-orange"></i>
+                        <span>1-5 Min Delivery</span>
+                    </div>
+                    <div class="why-mini-badge">
+                        <i class="fa-solid fa-paper-plane text-cyan"></i>
+                        <span>Email & Telegram Support</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 3: Verified Accounts -->
+            <div class="why-feature-card">
+                <div class="why-card-top">
+                    <div class="why-card-icon-wrap icon-green">
+                        <i class="fa-solid fa-square-check"></i>
+                    </div>
+                    <h3 class="why-card-title">Verified Accounts</h3>
+                    <p class="why-card-desc">We verify every single ID before listing to ensure complete safety and prevent scams.</p>
+                </div>
+                <div class="why-card-badges">
+                    <div class="why-mini-badge">
+                        <i class="fa-solid fa-shield-halved text-green"></i>
+                        <span>100% Verified</span>
+                    </div>
+                    <div class="why-mini-badge">
+                        <i class="fa-solid fa-user-shield text-cyan"></i>
+                        <span>Real & Safe Accounts</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4 Stats Counter Grid -->
+        <div class="why-stats-grid">
+            <div class="why-stat-card">
+                <div class="why-stat-icon stat-icon-cyan">
+                    <i class="fa-solid fa-users"></i>
+                </div>
+                <div class="why-stat-content">
+                    <div class="why-stat-number">35,000+</div>
+                    <div class="why-stat-label">Happy Customers</div>
+                    <div class="why-stat-sub">Trusted by gamers worldwide</div>
+                </div>
+            </div>
+
+            <div class="why-stat-card">
+                <div class="why-stat-icon stat-icon-green">
+                    <i class="fa-solid fa-shield-heart"></i>
+                </div>
+                <div class="why-stat-content">
+                    <div class="why-stat-number">99.8%</div>
+                    <div class="why-stat-label">Positive Reviews</div>
+                    <div class="why-stat-sub">Customer satisfaction rate</div>
+                </div>
+            </div>
+
+            <div class="why-stat-card">
+                <div class="why-stat-icon stat-icon-amber">
+                    <i class="fa-solid fa-trophy"></i>
+                </div>
+                <div class="why-stat-content">
+                    <div class="why-stat-number">1,25,000+</div>
+                    <div class="why-stat-label">Orders Delivered</div>
+                    <div class="why-stat-sub">Successfully completed orders</div>
+                </div>
+            </div>
+
+            <div class="why-stat-card">
+                <div class="why-stat-icon stat-icon-purple">
+                    <i class="fa-solid fa-headset"></i>
+                </div>
+                <div class="why-stat-content">
+                    <div class="why-stat-number">24/7</div>
+                    <div class="why-stat-label">Customer Support</div>
+                    <div class="why-stat-sub">We're here to help always</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Safe Payments & Trusted Partners Container -->
+        <div class="why-trust-container">
+            <!-- Neon Header Divider -->
+            <div class="why-trust-divider">
+                <div class="divider-line left-line"></div>
+                <span class="divider-text">Safe Payments. Trusted Partners.</span>
+                <div class="divider-line right-line"></div>
+            </div>
+
+            <!-- Payment Methods Row -->
+            <div class="why-payment-partners">
+                <div class="payment-partner-badge" title="UPI">
+                    <svg width="65" height="24" viewBox="0 0 100 40" fill="none">
+                        <path d="M12 28L20 12H30L22 28H12Z" fill="#097939"/>
+                        <path d="M24 28L32 12H42L34 28H24Z" fill="#ED752E"/>
+                        <text x="46" y="27" font-family="'Orbitron', sans-serif" font-weight="900" font-size="20" fill="#FFFFFF" letter-spacing="1">UPI</text>
+                    </svg>
+                </div>
+
+                <div class="payment-partner-badge" title="PhonePe">
+                    <div class="partner-phonepe">
+                        <div class="phonepe-circle">पे</div>
+                        <span class="phonepe-name">PhonePe</span>
+                    </div>
+                </div>
+
+                <div class="payment-partner-badge" title="Google Pay">
+                    <div class="partner-gpay">
+                        <svg width="20" height="20" viewBox="0 0 24 24">
+                            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+                            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+                        </svg>
+                        <span class="gpay-name">Pay</span>
+                    </div>
+                </div>
+
+                <div class="payment-partner-badge" title="Paytm">
+                    <span class="partner-paytm">pay<span class="paytm-pill">tm</span></span>
+                </div>
+
+                <div class="payment-partner-badge" title="VISA">
+                    <span class="partner-visa">VISA</span>
+                </div>
+
+                <div class="payment-partner-badge" title="Mastercard">
+                    <div class="partner-mastercard">
+                        <div class="mc-circle-red"></div>
+                        <div class="mc-circle-orange"></div>
+                    </div>
+                </div>
+
+                <div class="payment-partner-badge" title="RuPay">
+                    <div class="partner-rupay">
+                        <span class="ru-text">Ru</span><span class="pay-text">Pay</span>
+                        <svg width="12" height="12" viewBox="0 0 20 20" fill="none">
+                            <path d="M3 17L11 3H17L9 17H3Z" fill="#ff6600"/>
+                            <path d="M9 17L17 3H19L11 17H9Z" fill="#00baf2"/>
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="payment-partner-badge ssl-secure-badge" title="256-bit SSL Protected">
+                    <div class="ssl-shield-icon">
+                        <i class="fa-solid fa-shield-halved"></i>
+                    </div>
+                    <div class="ssl-shield-text">
+                        <span class="ssl-sub">Protected by</span>
+                        <span class="ssl-main">256-bit SSL</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom Guarantees Row -->
+            <div class="why-trust-guarantees">
+                <div class="trust-guarantee-item">
+                    <i class="fa-solid fa-tags"></i>
+                    <span>No Hidden Charges</span>
+                </div>
+                <div class="trust-guarantee-divider"></div>
+                <div class="trust-guarantee-item">
+                    <i class="fa-regular fa-eye"></i>
+                    <span>100% Transparency</span>
+                </div>
+                <div class="trust-guarantee-divider"></div>
+                <div class="trust-guarantee-item">
+                    <i class="fa-solid fa-lock"></i>
+                    <span>Privacy Protected</span>
+                </div>
             </div>
         </div>
     </div>

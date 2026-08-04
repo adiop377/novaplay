@@ -39,16 +39,71 @@
                 <h3>Order Summary</h3>
                 <div class="summary-row">
                     <span>Items (<%= cartItems.length %>)</span>
-                    <span>₹<%= total.toLocaleString('en-IN') %></span>
+                    <span id="cartSubtotal">₹<%= total.toLocaleString('en-IN') %></span>
                 </div>
+
+                <!-- Nova Coins Discount Widget -->
+                <% const userCoins = (user && user.nova_coins !== undefined) ? (user.nova_coins || 0) : 0; %>
+                <% const maxCoinsDeduct = Math.min(userCoins, Math.max(0, total - 1)); %>
+                
+                <div class="cart-coins-discount-card">
+                    <div class="cart-coins-header">
+                        <label class="custom-coin-toggle">
+                            <input type="checkbox" id="chkUseNovaCoins" onchange="toggleCartCoins()">
+                            <span class="coin-toggle-slider"></span>
+                            <span class="coin-toggle-text">
+                                <strong>Redeem Nova Coins</strong>
+                                <small>Available: 🪙 <%= userCoins %> Coins</small>
+                            </span>
+                        </label>
+                    </div>
+                    <div class="cart-coins-row" id="cartCoinsDiscountRow" style="display: none;">
+                        <span>Nova Coins Discount (<%= maxCoinsDeduct %> Coins):</span>
+                        <span class="text-green">-₹<%= maxCoinsDeduct.toLocaleString('en-IN') %></span>
+                    </div>
+                </div>
+
+                <!-- Nova Coins Cashback Return Banner -->
+                <div class="cart-cashback-badge">
+                    <span class="cashback-coin-anim">🪙</span>
+                    <div>
+                        <strong>+125 Nova Coins Cashback</strong>
+                        <span>Purchase complete hone par aapko 125 Nova Coins return milenge!</span>
+                    </div>
+                </div>
+
                 <div class="summary-row total">
                     <span>Total</span>
-                    <span class="total-price">₹<%= total.toLocaleString('en-IN') %></span>
+                    <span class="total-price" id="cartFinalTotal">₹<%= total.toLocaleString('en-IN') %></span>
                 </div>
-                <a href="/orders/checkout" class="btn btn-primary w-100">Proceed to Checkout</a>
+                
+                <a href="/orders/checkout" id="btnCartCheckout" class="btn btn-primary w-100">Proceed to Checkout</a>
                 <a href="/cart/clear" class="btn btn-secondary w-100" style="margin-top: 10px;">Clear Cart</a>
             </div>
         </div>
+
+        <script>
+            const originalTotal = <%= total %>;
+            const maxCoins = <%= maxCoinsDeduct %>;
+
+            function toggleCartCoins() {
+                const chk = document.getElementById('chkUseNovaCoins');
+                const row = document.getElementById('cartCoinsDiscountRow');
+                const totalEl = document.getElementById('cartFinalTotal');
+                const btn = document.getElementById('btnCartCheckout');
+
+                if (chk && chk.checked && maxCoins > 0) {
+                    if (row) row.style.display = 'flex';
+                    const newTotal = Math.max(1, originalTotal - maxCoins);
+                    if (totalEl) totalEl.innerText = '₹' + newTotal.toLocaleString('en-IN');
+                    if (btn) btn.href = '/orders/checkout?use_coins=1';
+                } else {
+                    if (row) row.style.display = 'none';
+                    if (totalEl) totalEl.innerText = '₹' + originalTotal.toLocaleString('en-IN');
+                    if (btn) btn.href = '/orders/checkout';
+                }
+            }
+        </script>
         <% } else { %>
             <div class="empty-cart">
                 <div class="empty-icon">🛒</div>

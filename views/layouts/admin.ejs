@@ -7,31 +7,60 @@
     <title>
         <%= typeof title !=='undefined' ? title : 'Admin - PlayNova' %>
     </title>
+    <link rel="icon" type="image/png" href="/images/favicon.png">
+    <link rel="apple-touch-icon" href="/images/favicon.png">
     <link
         href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;800&family=Rajdhani:wght@300;500;700&display=swap"
         rel="stylesheet">
-    <link rel="stylesheet" href="/css/style.css">
-    <link rel="stylesheet" href="/css/admin.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css?v=8">
+    <link rel="stylesheet" href="/css/admin.css?v=3">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 
 <body class="admin-body">
+    <!-- Admin Mobile Top Header Bar -->
+    <header class="admin-mobile-topbar">
+        <div class="admin-topbar-brand">
+            <a href="/admin" style="display: flex; align-items: center; gap: 8px; text-decoration: none;">
+                <img src="/images/playnova-logo.png" alt="PlayNova" style="height: 32px; width: auto; object-fit: contain; mix-blend-mode: lighten;">
+                <span style="font-family: 'Orbitron', sans-serif; font-size: 1rem; font-weight: 800; color: #fff;">PlayNova <span class="neon-text-green" style="font-size: 0.75rem;">ADMIN</span></span>
+            </a>
+        </div>
+        <button class="admin-toggle-btn" id="adminSidebarToggle" aria-label="Toggle Sidebar Menu">
+            <i class="fa-solid fa-bars"></i>
+        </button>
+    </header>
+
     <div class="admin-wrapper">
-        <!-- Admin Sidebar -->
-        <aside class="admin-sidebar">
-            <div class="admin-logo">
-                <a href="/admin">FF <span class="neon-text-green">ADMIN</span></a>
+        <!-- Admin Sidebar / Mobile Drawer -->
+        <aside class="admin-sidebar" id="adminSidebar">
+            <div class="admin-sidebar-header">
+                <div class="admin-logo">
+                    <a href="/admin" style="display: flex; align-items: center; gap: 10px; text-decoration: none;">
+                        <img src="/images/playnova-logo.png" alt="PlayNova" style="height: 38px; width: auto; object-fit: contain; mix-blend-mode: lighten;">
+                        <span style="font-family: 'Orbitron', sans-serif; font-size: 1.15rem; font-weight: 800; color: #fff;">PlayNova <span class="neon-text-green" style="font-size: 0.75rem;">ADMIN</span></span>
+                    </a>
+                </div>
+                <button class="admin-sidebar-close" id="adminSidebarClose" aria-label="Close Sidebar">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
             </div>
             <nav class="admin-nav">
-                <a href="/admin" class="admin-nav-link">📊 Dashboard</a>
-                <a href="/admin/products" class="admin-nav-link">📦 Products</a>
-                <a href="/admin/products/new" class="admin-nav-link">➕ Add Product</a>
-                <a href="/admin/orders" class="admin-nav-link">🛒 Orders</a>
-                <a href="/admin/topups" class="admin-nav-link">💎 Manage Topups</a>
+                <a href="/admin" class="admin-nav-link"><i class="fa-solid fa-chart-line"></i> <span>Dashboard</span></a>
+                <a href="/admin/products" class="admin-nav-link"><i class="fa-solid fa-box"></i> <span>Products</span></a>
+                <a href="/admin/products/new" class="admin-nav-link"><i class="fa-solid fa-plus"></i> <span>Add Product</span></a>
+                <a href="/admin/orders" class="admin-nav-link"><i class="fa-solid fa-cart-shopping"></i> <span>Orders</span></a>
+                <a href="/admin/topups" class="admin-nav-link"><i class="fa-solid fa-gem"></i> <span>Manage Topups</span></a>
+                <a href="/admin/users" class="admin-nav-link"><i class="fa-solid fa-coins"></i> <span>Users & Nova Coins</span></a>
+                <a href="/admin/coupons" class="admin-nav-link"><i class="fa-solid fa-ticket"></i> <span>Generate Coupons</span></a>
                 <hr>
-                <a href="/" class="admin-nav-link">🏠 View Site</a>
-                <a href="/logout" class="admin-nav-link">🚪 Logout</a>
+                <a href="/" class="admin-nav-link"><i class="fa-solid fa-house"></i> <span>View Site</span></a>
+                <a href="/logout" class="admin-nav-link logout"><i class="fa-solid fa-right-from-bracket"></i> <span>Logout</span></a>
             </nav>
         </aside>
+        
+        <div class="admin-backdrop" id="adminBackdrop"></div>
 
         <!-- Admin Main Content -->
         <main class="admin-main">
@@ -61,6 +90,32 @@
                             <%- body %>
         </main>
     </div>
+
+    <script>
+        const toggleBtn = document.getElementById('adminSidebarToggle');
+        const closeBtn = document.getElementById('adminSidebarClose');
+        const sidebar = document.getElementById('adminSidebar');
+        const backdrop = document.getElementById('adminBackdrop');
+
+        function openSidebar() {
+            if (sidebar && backdrop) {
+                sidebar.classList.add('active');
+                backdrop.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+        }
+        function closeSidebar() {
+            if (sidebar && backdrop) {
+                sidebar.classList.remove('active');
+                backdrop.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        }
+
+        if (toggleBtn) toggleBtn.addEventListener('click', openSidebar);
+        if (closeBtn) closeBtn.addEventListener('click', closeSidebar);
+        if (backdrop) backdrop.addEventListener('click', closeSidebar);
+    </script>
 </body>
 
 </html>

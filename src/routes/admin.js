@@ -50,4 +50,17 @@ router.post('/topups', uploadSingle, adminController.createTopup);
 router.post('/topups/:id', uploadSingle, adminController.updateTopup);
 router.post('/topups/:id/delete', adminController.deleteTopup);
 
+
+
+// Users & Nova Coins management
+router.get('/users', adminController.listUsers);
+router.post('/users/grant-coins', adminController.grantCoinsDirect);
+router.post('/users/:id/coins', adminController.updateUserCoins);
+router.post('/users/:id/vip', adminController.toggleUserVip);
+
+// Coupons management
+router.get('/coupons', adminController.couponsPage);
+router.post('/coupons/generate', adminController.generateCoupon);
+router.post('/coupons/:id/toggle', adminController.toggleCouponStatus);
+
 module.exports = router;

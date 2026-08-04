@@ -59,6 +59,61 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Mobile Menu Drawer Toggle Logic
+    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+    const mobileMenuClose = document.getElementById('mobileMenuClose');
+    const mobileMenuDrawer = document.getElementById('mobileMenuDrawer');
+    const mobileMenuBackdrop = document.getElementById('mobileMenuBackdrop');
+
+    function openMobileMenu() {
+        if (mobileMenuDrawer && mobileMenuBackdrop) {
+            mobileMenuDrawer.classList.add('open');
+            mobileMenuBackdrop.classList.add('open');
+            document.body.style.overflow = 'hidden';
+        }
+    }
+
+    function closeMobileMenu() {
+        if (mobileMenuDrawer && mobileMenuBackdrop) {
+            mobileMenuDrawer.classList.remove('open');
+            mobileMenuBackdrop.classList.remove('open');
+            document.body.style.overflow = '';
+        }
+    }
+
+    if (mobileMenuBtn) {
+        mobileMenuBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (mobileMenuDrawer && mobileMenuDrawer.classList.contains('open')) {
+                closeMobileMenu();
+            } else {
+                openMobileMenu();
+            }
+        });
+    }
+
+    if (mobileMenuClose) {
+        mobileMenuClose.addEventListener('click', closeMobileMenu);
+    }
+
+    if (mobileMenuBackdrop) {
+        mobileMenuBackdrop.addEventListener('click', closeMobileMenu);
+    }
+
+    // Close mobile menu on clicking any navigation link
+    document.querySelectorAll('.mobile-nav-link, .mobile-user-btn, .mobile-auth-btn').forEach(link => {
+        link.addEventListener('click', () => {
+            closeMobileMenu();
+        });
+    });
+
+    // Close on Escape key
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && mobileMenuDrawer && mobileMenuDrawer.classList.contains('open')) {
+            closeMobileMenu();
+        }
+    });
+
     // Scroll Reveal Animation (Motion Graphics)
     const observerOptions = {
         threshold: 0.1,

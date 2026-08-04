@@ -40,6 +40,71 @@ const paymentController = {
         }
     },
 
+    // Apply Nova Coins discount directly from checkout page
+    applyCoinsToOrder: async (req, res) => {
+        try {
+            const orderId = parseInt(req.params.orderId);
+            if (!orderId) {
+                return res.status(400).json({ success: false, message: 'Invalid order ID' });
+            }
+
+            const order = await Order.getById(orderId);
+            const userId = req.session && req.session.user ? req.session.user.id : null;
+
+            if (!userId) {
+                return res.status(401).json({ success: false, message: 'Please login first' });
+            }
+
+            if (!order || parseInt(order.user_id) !== parseInt(userId)) {
+                return res.status(404).json({ success: false, message: 'Order not found or unauthorized' });
+            }
+
+            if (order.payment_status === 'paid') {
+                return res.status(400).json({ success: false, message: 'Order is already paid' });
+            }
+
+            // Check if coins are already deducted in order.items
+            const alreadyHasCoinsDiscount = order.items && Array.isArray(order.items) && order.items.some(it => it && it.title && String(it.title).toLowerCase().includes('nova coins'));
+            if (alreadyHasCoinsDiscount) {
+                return res.status(400).json({ success: false, message: 'Nova Coins discount is already applied to this order' });
+            }
+
+            const User = require('../models/User');
+            const freshUser = await User.findById(userId);
+            const userCoins = freshUser ? (freshUser.nova_coins || 0) : 0;
+            const currentTotal = parseFloat(order.total);
+            const coinsToDeduct = Math.min(userCoins, Math.floor(currentTotal - 1));
+
+            if (coinsToDeduct <= 0) {
+                return res.status(400).json({ success: false, message: 'No Nova Coins available or total too low' });
+            }
+
+            const newTotal = Math.max(1, currentTotal - coinsToDeduct);
+
+            // Deduct user's coins
+            let updatedUserCoins = userCoins - coinsToDeduct;
+            try {
+                const updated = await User.deductNovaCoins(userId, coinsToDeduct);
+                if (updated) updatedUserCoins = updated.nova_coins;
+            } catch (uErr) {
+                console.error('Error in deductNovaCoins:', uErr);
+            }
+            req.session.user.nova_coins = updatedUserCoins;
+
+            // Update order total and add discount item
+            await pool.query('UPDATE orders SET total = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2', [newTotal, orderId]);
+            await pool.query(`
+                INSERT INTO order_items (order_id, product_id, price, product_title)
+                VALUES ($1, NULL, $2, $3)
+            `, [orderId, -coinsToDeduct, `🪙 Nova Coins Discount (-${coinsToDeduct} Coins)`]);
+
+            return res.json({ success: true, newTotal: newTotal, coinsDeducted: coinsToDeduct });
+        } catch (error) {
+            console.error('Apply coins to order error:', error);
+            return res.status(500).json({ success: false, message: error.message || 'Failed to apply Nova Coins' });
+        }
+    },
+
     // Create Razorpay Order
     createRazorpayOrder: async (req, res) => {
         try {
@@ -85,9 +150,16 @@ const paymentController = {
                 
                 // Fetch order and mark items as sold since payment is verified automatically
                 const order = await Order.getById(db_order_id);
+                let isIdPurchase = false;
+                let isVipPurchase = false;
+
                 for (let item of order.items) {
                     if (item.product_id) {
                         await Product.markSold(item.product_id);
+                        isIdPurchase = true;
+                    }
+                    if (item.title && item.title.includes('VIP PRO Membership')) {
+                        isVipPurchase = true;
                     }
                 }
 
@@ -97,6 +169,24 @@ const paymentController = {
 
                 // Auto-confirm order if strictly automated
                 await Order.updateStatus(db_order_id, 'confirmed');
+
+                const User = require('../models/User');
+                if (order.user_id) {
+                    // Reward customer 125 Nova coins ONLY for actual ID purchase
+                    if (isIdPurchase) {
+                        await User.addNovaCoins(order.user_id, 125);
+                        if (req.session.user && req.session.user.id === order.user_id) {
+                            req.session.user.nova_coins = (req.session.user.nova_coins || 0) + 125;
+                        }
+                    }
+                    // Upgrade to VIP if it was a VIP order
+                    if (isVipPurchase) {
+                        await User.upgradeToVip(order.user_id);
+                        if (req.session.user && req.session.user.id === order.user_id) {
+                            req.session.user.is_vip = true;
+                        }
+                    }
+                }
 
                 return res.json({ success: true, redirectUrl: `/payment/thank-you/${db_order_id}` });
             } else {

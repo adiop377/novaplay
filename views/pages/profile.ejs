@@ -1,49 +1,410 @@
 <section class="profile-section container section">
-    <h2 class="section-title">My <span class="neon-text-green">Profile</span></h2>
+    <div class="account-info-wrapper">
+        <!-- Main Account Information Card -->
+        <div class="account-info-card">
+            <div class="account-card-header">
+                <h2 class="account-card-title">Account Information</h2>
+                <div class="account-badge-status">
+                    <i class="fa-solid fa-shield-check"></i>
+                    <span>Secure & Verified</span>
+                </div>
+            </div>
 
-    <div class="profile-grid">
-        <!-- Update Profile -->
-        <div class="profile-card">
-            <h3>Profile Information</h3>
-            <form action="/profile" method="POST" class="auth-form">
+            <div class="account-info-list">
+                <!-- Row 1: Avatar -->
+                <div class="info-row">
+                    <div class="info-label">Avatar</div>
+                    <div class="info-content">
+                        <div class="account-avatar-wrapper" onclick="openAvatarModal()" title="Change Avatar">
+                            <div class="account-avatar-circle">
+                                <%= profile.name ? profile.name.charAt(0).toUpperCase() : 'U' %>
+                            </div>
+                            <div class="avatar-camera-badge">
+                                <i class="fa-solid fa-camera"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="info-action">
+                        <button type="button" class="btn-info-action" onclick="openAvatarModal()">Modify</button>
+                    </div>
+                </div>
+
+                <!-- Row 2: Nickname -->
+                <div class="info-row">
+                    <div class="info-label">Nickname</div>
+                    <div class="info-content">
+                        <span class="info-val-text info-val-bold"><%= profile.name %></span>
+                        <% if (profile.role === 'admin') { %>
+                            <span class="info-role-badge admin">ADMIN</span>
+                        <% } else if (profile.is_vip || profile.role === 'vip') { %>
+                            <span class="info-role-badge vip"><i class="fa-solid fa-crown"></i> VIP PRO</span>
+                        <% } else { %>
+                            <span class="info-role-badge member"><i class="fa-solid fa-shield"></i> Member</span>
+                            <button type="button" class="btn-get-vip-inline" onclick="openVipModal()">
+                                <i class="fa-solid fa-crown"></i> Get VIP PRO ₹499
+                            </button>
+                        <% } %>
+                    </div>
+                    <div class="info-action">
+                        <button type="button" class="btn-info-action" onclick="openEditProfileModal()">Modify</button>
+                    </div>
+                </div>
+
+                <!-- Row 3: Birthday -->
+                <div class="info-row">
+                    <div class="info-label">Birthday</div>
+                    <div class="info-content" id="birthdayContentContainer">
+                        <span class="info-val-muted" id="birthdayDisplay">Fill in birthday info to unlock FLAT 10% Birthday Discount 🎁</span>
+                    </div>
+                    <div class="info-action">
+                        <button type="button" class="btn-info-action" id="btnBirthdayAction" onclick="openBirthdayModal()">Set</button>
+                    </div>
+                </div>
+
+                <!-- Row 4: Email -->
+                <div class="info-row">
+                    <div class="info-label">Email</div>
+                    <div class="info-content">
+                        <span class="info-val-text"><%= profile.email %></span>
+                        <span class="badge-verified-pill"><i class="fa-solid fa-circle-check"></i> Verified</span>
+                    </div>
+                    <div class="info-action">
+                        <button type="button" class="btn-info-action" onclick="openEditProfileModal()">Connect</button>
+                    </div>
+                </div>
+
+                <!-- Row 5: Password -->
+                <div class="info-row">
+                    <div class="info-label">Password</div>
+                    <div class="info-content">
+                        <span class="info-val-muted">•••••••••••• (Protected & Encrypted)</span>
+                    </div>
+                    <div class="info-action">
+                        <button type="button" class="btn-info-action" onclick="openPasswordModal()">Set</button>
+                    </div>
+                </div>
+
+                <!-- Row 6: User ID -->
+                <div class="info-row">
+                    <div class="info-label">User ID</div>
+                    <div class="info-content">
+                        <span class="info-val-id" id="userIdText">#<%= profile.user_code || ('PN-' + (500000 + ((profile.id || 1) * 179424673 + 38491) % 490000)) %></span>
+                    </div>
+                    <div class="info-action">
+                        <button type="button" class="btn-info-action" onclick="copyUserId('#<%= profile.user_code || ('PN-' + (500000 + ((profile.id || 1) * 179424673 + 38491) % 490000)) %>')">
+                            <i class="fa-regular fa-copy"></i> Copy
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Row 7: Nova Coins Balance -->
+                <div class="info-row" style="background: rgba(255, 215, 0, 0.04); border-radius: 10px; margin: 4px -8px; padding: 12px 8px;">
+                    <div class="info-label" style="color: #ffd700; font-weight: 700; display: flex; align-items: center; gap: 6px;">
+                        <span>🪙</span> Nova Coins
+                    </div>
+                    <div class="info-content">
+                        <span style="color: #ffd700; font-weight: 800; font-size: 1.05rem;"><%= (profile.nova_coins || 0).toLocaleString('en-IN') %> Coins</span>
+                        <span style="color: #94a3b8; font-size: 0.8rem; margin-left: 8px;">(₹<%= (profile.nova_coins || 0).toLocaleString('en-IN') %> discount value)</span>
+                    </div>
+                    <div class="info-action">
+                        <a href="/cart" class="btn-info-action" style="text-decoration: none; color: #00e5ff; border-color: rgba(0, 229, 255, 0.4);">Use in Cart</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Access Bottom Navigation -->
+        <div class="profile-quick-actions">
+            <a href="/orders" class="btn btn-secondary profile-action-btn">
+                <i class="fa-solid fa-box-archive"></i> View My Orders
+            </a>
+            <a href="/cart" class="btn btn-secondary profile-action-btn">
+                <i class="fa-solid fa-cart-shopping"></i> View Cart
+            </a>
+            <a href="/logout" class="btn btn-logout-pill">
+                <i class="fa-solid fa-arrow-right-from-bracket"></i> Log Out
+            </a>
+        </div>
+    </div>
+
+    <!-- ==================== MODAL: MODIFY PROFILE (NAME & EMAIL) ==================== -->
+    <div class="custom-modal-overlay" id="editProfileModal">
+        <div class="custom-modal-box">
+            <div class="modal-header">
+                <div class="modal-title">
+                    <i class="fa-solid fa-user-pen text-cyan"></i>
+                    <span>Modify Profile Information</span>
+                </div>
+                <button type="button" class="modal-close-btn" onclick="closeModal('editProfileModal')">&times;</button>
+            </div>
+            <form action="/profile" method="POST" class="modal-body">
                 <div class="input-group">
-                    <label for="name">Full Name</label>
-                    <input type="text" id="name" name="name" value="<%= profile.name %>" required>
+                    <label for="name">Nickname / Full Name</label>
+                    <input type="text" id="name" name="name" value="<%= profile.name %>" required placeholder="Enter your nickname">
                 </div>
                 <div class="input-group">
                     <label for="email">Email Address</label>
-                    <input type="email" id="email" name="email" value="<%= profile.email %>" required>
+                    <input type="email" id="email" name="email" value="<%= profile.email %>" required placeholder="name@example.com">
                 </div>
-                <button type="submit" class="btn btn-primary">Update Profile</button>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('editProfileModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
             </form>
         </div>
+    </div>
 
-        <!-- Change Password -->
-        <div class="profile-card">
-            <h3>Change Password</h3>
-            <form action="/profile/password" method="POST" class="auth-form">
+    <!-- ==================== MODAL: CHANGE PASSWORD ==================== -->
+    <div class="custom-modal-overlay" id="passwordModal">
+        <div class="custom-modal-box">
+            <div class="modal-header">
+                <div class="modal-title">
+                    <i class="fa-solid fa-key text-cyan"></i>
+                    <span>Change Account Password</span>
+                </div>
+                <button type="button" class="modal-close-btn" onclick="closeModal('passwordModal')">&times;</button>
+            </div>
+            <form action="/profile/password" method="POST" class="modal-body">
                 <div class="input-group">
                     <label for="currentPassword">Current Password</label>
-                    <input type="password" id="currentPassword" name="currentPassword"
-                        placeholder="Enter current password" required>
+                    <input type="password" id="currentPassword" name="currentPassword" placeholder="Enter current password" required>
                 </div>
                 <div class="input-group">
                     <label for="newPassword">New Password</label>
-                    <input type="password" id="newPassword" name="newPassword" placeholder="Min 6 characters" required
-                        minlength="6">
+                    <input type="password" id="newPassword" name="newPassword" placeholder="Min 6 characters" required minlength="6">
                 </div>
                 <div class="input-group">
                     <label for="confirmPassword">Confirm New Password</label>
-                    <input type="password" id="confirmPassword" name="confirmPassword"
-                        placeholder="Confirm new password" required>
+                    <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm new password" required minlength="6">
                 </div>
-                <button type="submit" class="btn btn-primary">Change Password</button>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('passwordModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Update Password</button>
+                </div>
             </form>
         </div>
     </div>
 
-    <div class="profile-links">
-        <a href="/orders" class="btn btn-secondary">📦 View My Orders</a>
-        <a href="/cart" class="btn btn-secondary">🛒 View Cart</a>
+    <!-- ==================== MODAL: SET BIRTHDAY (10% DISCOUNT NOTE) ==================== -->
+    <div class="custom-modal-overlay" id="birthdayModal">
+        <div class="custom-modal-box bday-modal-box">
+            <div class="modal-header">
+                <div class="modal-title">
+                    <i class="fa-solid fa-cake-candles text-cyan"></i>
+                    <span>Set Birthday Information</span>
+                </div>
+                <button type="button" class="modal-close-btn" onclick="closeModal('birthdayModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <!-- Birthday Offer & Rules Note Box -->
+                <div class="birthday-offer-note-card">
+                    <div class="bday-note-top">
+                        <div class="bday-gift-glow-icon">🎁</div>
+                        <div class="bday-note-headings">
+                            <h4 class="bday-note-title">🎉 Birthday Special: <span class="neon-text-green">FLAT 10% Extra Discount!</span></h4>
+                            <p class="bday-note-desc">
+                                Jiska birthday hoga, <strong>usi same day par</strong> aapko PlayNova ke sabhi Free Fire IDs aur Diamond Topups par <strong>10% Extra Instant Discount</strong> milega! 🎂⚡
+                            </p>
+                        </div>
+                    </div>
+                    <div class="birthday-important-alert">
+                        <i class="fa-solid fa-triangle-exclamation text-yellow"></i>
+                        <span><strong>Important Note:</strong> Kripya apni real Date of Birth hi select karein. Ek baar birthday save karne ke baad verification policy ke tehat ise dobara change nahi kiya ja sakta.</span>
+                    </div>
+                </div>
+
+                <div class="input-group" style="margin-top: 18px;">
+                    <label for="birthdayInput"><i class="fa-solid fa-calendar-day text-cyan"></i> Select Your Birthday Date</label>
+                    <input type="date" id="birthdayInput" class="custom-date-input">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('birthdayModal')">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="saveBirthday()">
+                        <i class="fa-solid fa-gift"></i> Save Birthday & Claim Perk
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== MODAL: AVATAR SELECTION ==================== -->
+    <div class="custom-modal-overlay" id="avatarModal">
+        <div class="custom-modal-box">
+            <div class="modal-header">
+                <div class="modal-title">
+                    <i class="fa-solid fa-image text-cyan"></i>
+                    <span>Select Avatar Style</span>
+                </div>
+                <button type="button" class="modal-close-btn" onclick="closeModal('avatarModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p style="color: #94a3b8; font-size: 0.9rem; margin-bottom: 15px;">
+                    Your avatar initial is generated dynamically from your Nickname: <strong><%= profile.name %></strong>
+                </p>
+                <div class="avatar-preview-box">
+                    <div class="account-avatar-circle large">
+                        <%= profile.name ? profile.name.charAt(0).toUpperCase() : 'U' %>
+                    </div>
+                    <span style="color: #00e5ff; font-weight: 700; font-size: 1.1rem; margin-top: 10px;">
+                        <%= profile.name %>
+                    </span>
+                    <span style="color: #64748b; font-size: 0.8rem;">To change your avatar initial, modify your Nickname.</span>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary w-100" onclick="closeModal('avatarModal'); openEditProfileModal();">
+                        Modify Nickname
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 </section>
+
+<!-- Inline Scripts for Interactive Modals and Actions -->
+<script>
+    function openModal(id) {
+        const modal = document.getElementById(id);
+        if (modal) {
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+    }
+
+    function closeModal(id) {
+        const modal = document.getElementById(id);
+        if (modal) {
+            modal.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+    }
+
+    function openEditProfileModal() {
+        openModal('editProfileModal');
+    }
+
+    function openPasswordModal() {
+        openModal('passwordModal');
+    }
+
+    function openBirthdayModal() {
+        openModal('birthdayModal');
+    }
+
+    function openAvatarModal() {
+        openModal('avatarModal');
+    }
+
+    // Close modal on clicking outside overlay
+    document.querySelectorAll('.custom-modal-overlay').forEach(overlay => {
+        overlay.addEventListener('click', function (e) {
+            if (e.target === this) {
+                closeModal(this.id);
+            }
+        });
+    });
+
+    // Close on Escape key
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') {
+            document.querySelectorAll('.custom-modal-overlay.active').forEach(m => {
+                closeModal(m.id);
+            });
+        }
+    });
+
+    // Copy User ID
+    function copyUserId(id) {
+        navigator.clipboard.writeText(id).then(() => {
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: 'success',
+                    title: 'User ID copied: ' + id,
+                    showConfirmButton: false,
+                    timer: 2000,
+                    background: '#0b0e14',
+                    color: '#ffffff'
+                });
+            } else {
+                alert('Copied ID: ' + id);
+            }
+        });
+    }
+
+    // Render Birthday state & perks
+    function renderBirthdayUI(savedDateStr) {
+        const container = document.getElementById('birthdayContentContainer');
+        const actionBtn = document.getElementById('btnBirthdayAction');
+        if (!container || !savedDateStr) return;
+
+        const date = new Date(savedDateStr);
+        const today = new Date();
+        const formatted = date.toLocaleDateString('en-US', { month: 'long', day: 'numeric' });
+        const isBirthdayToday = (date.getDate() === today.getDate() && date.getMonth() === today.getMonth());
+
+        let html = `<span class="info-val-text info-val-bold">${formatted} 🎂</span>`;
+        if (isBirthdayToday) {
+            html += `<span class="birthday-today-badge"><i class="fa-solid fa-gift"></i> 🎉 10% Birthday Discount UNLOCKED Today!</span>`;
+        } else {
+            html += `<span class="birthday-perk-badge"><i class="fa-solid fa-cake-candles text-cyan"></i> 10% Extra Discount on Birthday</span>`;
+        }
+
+        container.innerHTML = html;
+        if (actionBtn) {
+            actionBtn.innerText = 'Saved';
+            actionBtn.disabled = true;
+            actionBtn.style.opacity = '0.6';
+            actionBtn.style.cursor = 'default';
+        }
+    }
+
+    // Save Birthday
+    function saveBirthday() {
+        const input = document.getElementById('birthdayInput');
+        if (input && input.value) {
+            const rawVal = input.value;
+            localStorage.setItem('user_birthday_raw', rawVal);
+            renderBirthdayUI(rawVal);
+            closeModal('birthdayModal');
+
+            const date = new Date(rawVal);
+            const today = new Date();
+            const isBirthdayToday = (date.getDate() === today.getDate() && date.getMonth() === today.getMonth());
+
+            if (typeof Swal !== 'undefined') {
+                if (isBirthdayToday) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: '🎂 HAPPY BIRTHDAY! 🎉',
+                        html: '<p style="color:#00e5ff; font-size:1.1rem; font-weight:700; margin:8px 0;">FLAT 10% Extra Birthday Discount Active Today!</p><p style="color:#94a3b8; font-size:0.9rem;">Aapke account par aaj ke din sabhi Free Fire IDs aur Diamond Topup par 10% Extra discount lag gaya hai.</p>',
+                        confirmButtonText: 'Claim 10% Discount 🚀',
+                        confirmButtonColor: '#00e5ff',
+                        background: '#0b0e14',
+                        color: '#ffffff'
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'success',
+                        title: '🎂 Birthday Saved Successfully!',
+                        html: '<p style="color:#00e5ff; font-size:1rem; font-weight:600; margin:8px 0;">10% Birthday Perk Activated!</p><p style="color:#94a3b8; font-size:0.9rem;">Aapke birthday ke din aapko website par <strong>FLAT 10% Extra Discount</strong> automatic milega! 🎁</p>',
+                        confirmButtonText: 'Awesome!',
+                        confirmButtonColor: '#00e5ff',
+                        background: '#0b0e14',
+                        color: '#ffffff'
+                    });
+                }
+            }
+        } else {
+            closeModal('birthdayModal');
+        }
+    }
+
+    // Load saved birthday on load if present
+    document.addEventListener('DOMContentLoaded', () => {
+        const savedBday = localStorage.getItem('user_birthday_raw');
+        if (savedBday) {
+            renderBirthdayUI(savedBday);
+        }
+    });
+</script>

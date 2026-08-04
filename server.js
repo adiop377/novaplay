@@ -44,9 +44,11 @@ app.use(session({
 // Flash Messages
 app.use(flash());
 
-// Global Variables (accessible in all EJS templates)
+const { addUserToLocals } = require('./src/middleware/auth');
+
+// Global Variables & Sync Database (accessible in all EJS templates)
+app.use(addUserToLocals);
 app.use((req, res, next) => {
-    res.locals.user = req.session.user || null;
     res.locals.success_msg = req.flash('success');
     res.locals.error_msg = req.flash('error');
     next();
@@ -184,62 +186,6 @@ app.get('/topup', async (req, res) => {
     } catch (error) {
         console.error('Topup page error:', error);
         res.render('pages/topup', { title: 'Free Fire Diamond Topup', filters: {}, packages: [] });
-    }
-});
-
-app.post('/topup/order', async (req, res) => {
-    try {
-        if (!req.session.user) {
-            return res.status(401).json({ success: false, message: 'Please login to topup.' });
-        }
-        
-        const userId = req.session.user.id;
-        
-        // Verify user exists in database to avoid foreign key errors
-        const User = require('./src/models/User');
-        const userExists = await User.findById(userId);
-        if(!userExists) {
-            req.session.destroy();
-            return res.status(401).json({ success: false, message: 'Session expired. Please login again.' });
-        }
-        
-        const { amount, price, uid } = req.body;
-        const Order = require('./src/models/Order');
-
-        // Create the topup order
-        const order = await Order.create(userId, price, uid, [{
-            product_id: null, // null for topup rather than 0 which violates foreign key
-            price: price,
-            title: `${amount} Diamonds Topup`
-        }]);
-
-        // Razorpay integration skipped as per user request for manual QR payment
-        /*
-        const options = {
-            amount: Math.round(parsedPrice * 100), // convert to paise
-            currency: 'INR',
-            receipt: `order_rcptid_${order.id}`,
-        };
-
-        let rzpOrder;
-        try {
-            rzpOrder = await rzp.orders.create(options);
-        } catch (rzpErr) {
-            console.error('Razorpay Order Creation Failed:', rzpErr);
-            throw new Error('Payment Gateway Error: ' + (rzpErr.error ? rzpErr.error.description : rzpErr.message));
-        }
-        
-        // Update order with razorpay order id
-        await Order.updateStatus(order.id, 'pending'); // Ensure status is pending
-        */
-
-        res.json({ success: true, orderId: order.id });
-    } catch (error) {
-        console.error('Topup Error:', error);
-        res.status(500).json({ 
-            success: false, 
-            message: 'Failed to create order: ' + error.message
-        });
     }
 });
 

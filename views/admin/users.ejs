@@ -1,0 +1,441 @@
+<div class="admin-users-page" style="padding-bottom: 50px;">
+    <!-- Page Header -->
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; margin-bottom: 25px;">
+        <div>
+            <h2 style="font-family: 'Orbitron', sans-serif; font-size: 1.5rem; color: #fff; margin: 0; display: flex; align-items: center; gap: 10px;">
+                <i class="fa-solid fa-coins" style="color: #ffd700;"></i> Manage Users, Coins & VIP Status
+            </h2>
+            <p style="color: #94a3b8; font-size: 0.9rem; margin: 5px 0 0 0;">Add / reset Nova Coins, activate or cancel VIP PRO memberships</p>
+        </div>
+        
+        <!-- Search Form -->
+        <form action="/admin/users" method="GET" style="display: flex; gap: 10px; max-width: 350px; width: 100%;">
+            <div style="position: relative; width: 100%;">
+                <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #64748b;"></i>
+                <input 
+                    type="text" 
+                    name="q" 
+                    value="<%= typeof queryTerm !== 'undefined' ? queryTerm : '' %>" 
+                    placeholder="Search by UID (#PN-828586), Name, Email..." 
+                    style="width: 100%; background: #0f172a; border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 10px 14px 10px 38px; border-radius: 10px; font-size: 0.88rem; outline: none;"
+                >
+            </div>
+            <button type="submit" class="admin-btn" style="background: #00e5ff; color: #000; font-weight: 700; border: none; border-radius: 10px; padding: 0 16px; cursor: pointer;">Search</button>
+            <% if (typeof queryTerm !== 'undefined' && queryTerm) { %>
+                <a href="/admin/users" class="admin-btn" style="background: rgba(255,255,255,0.1); color: #fff; border-radius: 10px; padding: 10px 14px; text-decoration: none; display: flex; align-items: center;"><i class="fa-solid fa-xmark"></i></a>
+            <% } %>
+        </form>
+    </div>
+
+    <!-- Quick Grant Box -->
+    <div style="background: linear-gradient(135deg, rgba(20, 26, 41, 0.95), rgba(15, 23, 42, 0.95)); border: 1px solid rgba(255, 215, 0, 0.3); border-radius: 16px; padding: 22px; margin-bottom: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.4);">
+        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 15px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <div style="width: 38px; height: 38px; border-radius: 10px; background: rgba(255, 215, 0, 0.15); display: flex; align-items: center; justify-content: center; color: #ffd700; font-size: 1.2rem;">
+                    <i class="fa-solid fa-bolt"></i>
+                </div>
+                <div>
+                    <h3 style="font-family: 'Orbitron', sans-serif; font-size: 1.1rem; color: #ffd700; margin: 0;">Instant Nova Coin Allocator</h3>
+                    <p style="color: #94a3b8; font-size: 0.82rem; margin: 2px 0 0 0;">Add, reset, or deduct coins for any customer by User ID, Name, or Email</p>
+                </div>
+            </div>
+        </div>
+
+        <form id="grantCoinsForm" onsubmit="handleGrantSubmit(event)" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; align-items: end;">
+            <div>
+                <label style="display: block; color: #cbd5e1; font-size: 0.85rem; margin-bottom: 6px; font-weight: 600;">User Identifier / ID</label>
+                <input 
+                    type="text" 
+                    id="grantIdentifier" 
+                    placeholder="e.g. #PN-828586 or 15 or email" 
+                    required 
+                    style="width: 100%; background: #0b1120; border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 10px 14px; border-radius: 8px; font-size: 0.9rem;"
+                >
+            </div>
+
+            <div>
+                <label style="display: block; color: #cbd5e1; font-size: 0.85rem; margin-bottom: 6px; font-weight: 600;">Amount of Nova Coins</label>
+                <input 
+                    type="number" 
+                    id="grantAmount" 
+                    placeholder="e.g. 5000 (or 0 to reset)" 
+                    min="0" 
+                    required 
+                    style="width: 100%; background: #0b1120; border: 1px solid rgba(255, 215, 0, 0.4); color: #ffd700; font-weight: 700; padding: 10px 14px; border-radius: 8px; font-size: 1rem;"
+                >
+            </div>
+
+            <div>
+                <label style="display: block; color: #cbd5e1; font-size: 0.85rem; margin-bottom: 6px; font-weight: 600;">Action Mode</label>
+                <select id="grantAction" style="width: 100%; background: #0b1120; border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 10px 14px; border-radius: 8px; font-size: 0.9rem;">
+                    <option value="add">➕ Add to Existing Balance</option>
+                    <option value="set">🟰 Set Exact Balance (or 0)</option>
+                    <option value="deduct">➖ Deduct from Balance</option>
+                </select>
+            </div>
+
+            <div>
+                <button type="submit" id="grantSubmitBtn" style="width: 100%; background: linear-gradient(135deg, #ffd700, #ff9100); color: #000; font-weight: 800; font-family: 'Orbitron', sans-serif; border: none; border-radius: 8px; padding: 11px 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);">
+                    <i class="fa-solid fa-paper-plane"></i> Apply Update 🪙
+                </button>
+            </div>
+        </form>
+
+        <!-- Quick preset badges -->
+        <div style="display: flex; align-items: center; gap: 8px; margin-top: 15px; flex-wrap: wrap;">
+            <span style="color: #64748b; font-size: 0.8rem; font-weight: 600;">Quick Presets:</span>
+            <button type="button" onclick="setPreset(0, 'set')" style="background: rgba(255,0,85,0.15); border: 1px solid rgba(255,0,85,0.4); color: #ff0055; border-radius: 6px; padding: 4px 10px; font-size: 0.78rem; cursor: pointer; font-weight: 700;">🧹 0 (Reset)</button>
+            <button type="button" onclick="setPreset(125, 'add')" style="background: rgba(255,215,0,0.1); border: 1px solid rgba(255,215,0,0.3); color: #ffd700; border-radius: 6px; padding: 4px 10px; font-size: 0.78rem; cursor: pointer; font-weight: 600;">+125 Coins</button>
+            <button type="button" onclick="setPreset(500, 'add')" style="background: rgba(255,215,0,0.1); border: 1px solid rgba(255,215,0,0.3); color: #ffd700; border-radius: 6px; padding: 4px 10px; font-size: 0.78rem; cursor: pointer; font-weight: 600;">+500 Coins</button>
+            <button type="button" onclick="setPreset(1000, 'add')" style="background: rgba(255,215,0,0.1); border: 1px solid rgba(255,215,0,0.3); color: #ffd700; border-radius: 6px; padding: 4px 10px; font-size: 0.78rem; cursor: pointer; font-weight: 600;">+1,000 Coins</button>
+            <button type="button" onclick="setPreset(5000, 'add')" style="background: rgba(255,215,0,0.2); border: 1px solid #ffd700; color: #fff; border-radius: 6px; padding: 4px 12px; font-size: 0.78rem; cursor: pointer; font-weight: 700;">+5,000 Coins 🔥</button>
+        </div>
+    </div>
+
+    <!-- Users Table Card -->
+    <div style="background: var(--card-bg, #141a29); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; overflow: hidden;">
+        <div style="padding: 18px 24px; border-bottom: 1px solid rgba(255,255,255,0.08); display: flex; justify-content: space-between; align-items: center;">
+            <h3 style="margin: 0; color: #fff; font-size: 1.1rem; font-family: 'Orbitron', sans-serif;">
+                Customer Accounts (<%= users.length %>)
+            </h3>
+        </div>
+
+        <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; text-align: left;">
+                <thead>
+                    <tr style="background: rgba(0,0,0,0.25); color: #94a3b8; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px;">
+                        <th style="padding: 14px 20px;">User ID</th>
+                        <th style="padding: 14px 20px;">Customer</th>
+                        <th style="padding: 14px 20px;">Role</th>
+                        <th style="padding: 14px 20px;">VIP Status</th>
+                        <th style="padding: 14px 20px;">Nova Coins Balance</th>
+                        <th style="padding: 14px 20px;">Registered</th>
+                        <th style="padding: 14px 20px; text-align: right;">Manage Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% if (users && users.length > 0) { %>
+                        <% users.forEach(u => { %>
+                            <tr id="user-row-<%= u.id %>" style="border-bottom: 1px solid rgba(255,255,255,0.05); transition: background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.02)'" onmouseout="this.style.background='transparent'">
+                                <td style="padding: 16px 20px; font-family: monospace; color: #00e5ff; font-weight: 700; font-size: 0.95rem;">
+                                    #<%= u.user_code || ('PN-' + (500000 + (u.id * 179424673 + 38491) % 490000)) %>
+                                    <div style="font-size: 0.72rem; color: #64748b; font-weight: normal;">UID Ref: #<%= u.id %></div>
+                                </td>
+                                <td style="padding: 16px 20px;">
+                                    <div style="display: flex; align-items: center; gap: 12px;">
+                                        <div style="width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #00e5ff, #7000ff); display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 800; font-size: 0.9rem;">
+                                            <%= u.name ? u.name.charAt(0).toUpperCase() : 'U' %>
+                                        </div>
+                                        <div>
+                                            <div style="font-weight: 700; color: #fff; font-size: 0.92rem;"><%= u.name %></div>
+                                            <div style="font-size: 0.8rem; color: #94a3b8;"><%= u.email %></div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td style="padding: 16px 20px;">
+                                    <span style="background: <%= u.role === 'admin' ? 'rgba(255, 0, 85, 0.15)' : 'rgba(255,255,255,0.08)' %>; color: <%= u.role === 'admin' ? '#ff0055' : '#cbd5e1' %>; border: 1px solid <%= u.role === 'admin' ? 'rgba(255, 0, 85, 0.4)' : 'rgba(255,255,255,0.1)' %>; padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">
+                                        <%= u.role %>
+                                    </span>
+                                </td>
+                                <td style="padding: 16px 20px;">
+                                    <div id="vip-badge-<%= u.id %>">
+                                        <% if (u.is_vip) { %>
+                                            <span style="background: linear-gradient(135deg, rgba(0, 229, 255, 0.2), rgba(112, 0, 255, 0.2)); border: 1px solid #00e5ff; color: #00e5ff; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 800; display: inline-flex; align-items: center; gap: 5px;">
+                                                <i class="fa-solid fa-crown" style="color: #ffd700;"></i> VIP PRO
+                                            </span>
+                                        <% } else { %>
+                                            <span style="color: #64748b; font-size: 0.8rem;">Regular</span>
+                                        <% } %>
+                                    </div>
+                                </td>
+                                <td style="padding: 16px 20px;">
+                                    <div style="display: inline-flex; align-items: center; gap: 6px; background: rgba(255, 215, 0, 0.1); border: 1px solid rgba(255, 215, 0, 0.3); padding: 5px 12px; border-radius: 8px; color: #ffd700; font-weight: 800; font-size: 0.95rem;">
+                                        <span>🪙</span>
+                                        <span id="coins-val-<%= u.id %>"><%= (u.nova_coins || 0).toLocaleString('en-IN') %></span>
+                                    </div>
+                                </td>
+                                <td style="padding: 16px 20px; color: #64748b; font-size: 0.82rem;">
+                                    <%= u.created_at ? new Date(u.created_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : 'N/A' %>
+                                </td>
+                                <td style="padding: 16px 20px; text-align: right;">
+                                    <div style="display: flex; gap: 8px; justify-content: flex-end; align-items: center;">
+                                        <!-- Add/Adjust Coins Button -->
+                                        <button 
+                                            type="button" 
+                                            onclick="openQuickCoinModal('<%= u.id %>', '<%= u.name.replace(/'/g, '') %>', <%= u.nova_coins || 0 %>)" 
+                                            style="background: rgba(255, 215, 0, 0.15); border: 1px solid rgba(255, 215, 0, 0.4); color: #ffd700; padding: 6px 12px; border-radius: 8px; font-size: 0.8rem; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s;"
+                                            title="Add, set or reset Nova Coins"
+                                        >
+                                            <i class="fa-solid fa-coins"></i> Coins
+                                        </button>
+
+                                        <!-- VIP Status Button (Cancel VIP if active, or Grant VIP) -->
+                                        <div id="vip-btn-container-<%= u.id %>">
+                                            <% if (u.is_vip) { %>
+                                                <button 
+                                                    type="button" 
+                                                    id="vip-btn-<%= u.id %>"
+                                                    onclick="toggleVipStatus('<%= u.id %>', '<%= u.name.replace(/'/g, '') %>')" 
+                                                    style="background: rgba(255, 0, 85, 0.15); border: 1px solid rgba(255, 0, 85, 0.4); color: #ff0055; padding: 6px 12px; border-radius: 8px; font-size: 0.8rem; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s;"
+                                                    title="Cancel VIP Membership"
+                                                >
+                                                    <i class="fa-solid fa-ban"></i> Cancel VIP
+                                                </button>
+                                            <% } else { %>
+                                                <button 
+                                                    type="button" 
+                                                    id="vip-btn-<%= u.id %>"
+                                                    onclick="toggleVipStatus('<%= u.id %>', '<%= u.name.replace(/'/g, '') %>')" 
+                                                    style="background: rgba(0, 229, 255, 0.1); border: 1px solid rgba(0, 229, 255, 0.3); color: #00e5ff; padding: 6px 12px; border-radius: 8px; font-size: 0.8rem; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s;"
+                                                    title="Grant VIP PRO Status"
+                                                >
+                                                    <i class="fa-solid fa-crown"></i> Make VIP
+                                                </button>
+                                            <% } %>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        <% }) %>
+                    <% } else { %>
+                        <tr>
+                            <td colspan="7" style="text-align: center; padding: 40px; color: #64748b;">
+                                <i class="fa-solid fa-users" style="font-size: 2rem; margin-bottom: 10px; display: block;"></i>
+                                No users found matching your search.
+                            </td>
+                        </tr>
+                    <% } %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+function setPreset(amount, action = 'add') {
+    document.getElementById('grantAmount').value = amount;
+    if (action) {
+        document.getElementById('grantAction').value = action;
+    }
+}
+
+// Top Instant Allocator form submit
+async function handleGrantSubmit(e) {
+    e.preventDefault();
+    const identifier = document.getElementById('grantIdentifier').value.trim();
+    const amount = document.getElementById('grantAmount').value;
+    const action = document.getElementById('grantAction').value;
+    const btn = document.getElementById('grantSubmitBtn');
+
+    if (!identifier || amount === '') {
+        Swal.fire({ icon: 'warning', title: 'Missing Info', text: 'Please provide both User ID and Amount.', background: '#141a29', color: '#fff' });
+        return;
+    }
+
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Processing...';
+
+    try {
+        const res = await fetch('/admin/users/grant-coins', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({ userIdentifier: identifier, amount: amount, action: action })
+        });
+
+        const data = await res.json();
+        if (data.success) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Operation Successful! 🪙',
+                text: data.message,
+                background: '#141a29',
+                color: '#fff',
+                confirmButtonColor: '#ffd700'
+            }).then(() => {
+                window.location.reload();
+            });
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Operation Failed',
+                text: data.message || 'Could not update coins',
+                background: '#141a29',
+                color: '#fff'
+            });
+        }
+    } catch (err) {
+        console.error(err);
+        Swal.fire({ icon: 'error', title: 'Error', text: err.message, background: '#141a29', color: '#fff' });
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Apply Update 🪙';
+    }
+}
+
+// Quick coin modal for a specific row
+async function openQuickCoinModal(userId, userName, currentCoins) {
+    const { value: formValues } = await Swal.fire({
+        title: `🪙 Nova Coins for ${userName}`,
+        html: `
+            <div style="text-align: left; font-size: 0.9rem; color: #cbd5e1; margin-bottom: 14px; background: rgba(0,0,0,0.25); padding: 10px; border-radius: 8px;">
+                Current Balance: <strong style="color: #ffd700; font-size: 1.05rem;">🪙 ${currentCoins.toLocaleString()} Coins</strong>
+            </div>
+            <div style="margin-bottom: 14px;">
+                <label style="display: block; text-align: left; font-size: 0.82rem; margin-bottom: 4px; color: #94a3b8;">Action Mode:</label>
+                <select id="swalAction" style="width: 100%; padding: 10px; border-radius: 8px; background: #0b1120; color: #fff; border: 1px solid rgba(255,255,255,0.2); font-size: 0.9rem;">
+                    <option value="add">➕ Add Coins (+)</option>
+                    <option value="set">🟰 Set Exact Balance (=)</option>
+                    <option value="deduct">➖ Deduct Coins (-)</option>
+                </select>
+            </div>
+            <div>
+                <label style="display: block; text-align: left; font-size: 0.82rem; margin-bottom: 4px; color: #94a3b8;">Coin Amount:</label>
+                <input id="swalAmount" type="number" min="0" placeholder="e.g. 5000 (or 0)" style="width: 100%; padding: 10px; border-radius: 8px; background: #0b1120; color: #ffd700; font-weight: 700; font-size: 1rem; border: 1px solid #ffd700;">
+            </div>
+            <div style="display: flex; gap: 6px; margin-top: 12px; justify-content: center; flex-wrap: wrap;">
+                <button type="button" onclick="document.getElementById('swalAmount').value=0; document.getElementById('swalAction').value='set';" style="padding: 4px 10px; font-size: 0.75rem; border-radius: 6px; background: rgba(255,0,85,0.15); color: #ff0055; border: 1px solid rgba(255,0,85,0.4); cursor: pointer; font-weight: 700;">🧹 0 (Reset)</button>
+                <button type="button" onclick="document.getElementById('swalAmount').value=125; document.getElementById('swalAction').value='add';" style="padding: 4px 10px; font-size: 0.75rem; border-radius: 6px; background: rgba(255,215,0,0.1); color: #ffd700; border: 1px solid rgba(255,215,0,0.3); cursor: pointer;">+125</button>
+                <button type="button" onclick="document.getElementById('swalAmount').value=500; document.getElementById('swalAction').value='add';" style="padding: 4px 10px; font-size: 0.75rem; border-radius: 6px; background: rgba(255,215,0,0.1); color: #ffd700; border: 1px solid rgba(255,215,0,0.3); cursor: pointer;">+500</button>
+                <button type="button" onclick="document.getElementById('swalAmount').value=1000; document.getElementById('swalAction').value='add';" style="padding: 4px 10px; font-size: 0.75rem; border-radius: 6px; background: rgba(255,215,0,0.1); color: #ffd700; border: 1px solid rgba(255,215,0,0.3); cursor: pointer;">+1,000</button>
+                <button type="button" onclick="document.getElementById('swalAmount').value=5000; document.getElementById('swalAction').value='add';" style="padding: 4px 10px; font-size: 0.75rem; border-radius: 6px; background: rgba(255,215,0,0.2); color: #ffd700; border: 1px solid #ffd700; cursor: pointer; font-weight: 700;">+5,000</button>
+            </div>
+        `,
+        background: '#141a29',
+        color: '#fff',
+        confirmButtonText: 'Update Coins',
+        confirmButtonColor: '#ffd700',
+        showCancelButton: true,
+        cancelButtonColor: '#64748b',
+        focusConfirm: false,
+        preConfirm: () => {
+            const amount = document.getElementById('swalAmount').value;
+            const action = document.getElementById('swalAction').value;
+            if (amount === '' || isNaN(parseInt(amount)) || parseInt(amount) < 0) {
+                Swal.showValidationMessage('Please enter a valid non-negative number');
+                return false;
+            }
+            return { amount: parseInt(amount), action: action };
+        }
+    });
+
+    if (formValues) {
+        try {
+            Swal.showLoading();
+            const res = await fetch(`/admin/users/${userId}/coins`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                body: JSON.stringify(formValues)
+            });
+            const data = await res.json();
+            if (data.success) {
+                const el = document.getElementById(`coins-val-${userId}`);
+                if (el) el.innerText = data.newBalance.toLocaleString('en-IN');
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Coins Updated! 🪙',
+                    text: data.message,
+                    timer: 1400,
+                    showConfirmButton: false,
+                    background: '#141a29',
+                    color: '#fff'
+                }).then(() => {
+                    window.location.reload();
+                });
+            } else {
+                Swal.fire({ icon: 'error', title: 'Failed', text: data.message, background: '#141a29', color: '#fff' });
+            }
+        } catch (e) {
+            Swal.fire({ icon: 'error', title: 'Error', text: e.message, background: '#141a29', color: '#fff' });
+        }
+    }
+}
+
+// 1-Click VIP Toggle (Grant or Cancel VIP)
+async function toggleVipStatus(userId, userName) {
+    const isCurrentlyVip = document.getElementById(`vip-btn-${userId}`)?.innerText.includes('Cancel');
+    
+    // If currently VIP, show confirmation modal for cancelling VIP
+    if (isCurrentlyVip) {
+        const confirmRes = await Swal.fire({
+            title: `Cancel VIP Membership?`,
+            text: `Are you sure you want to revoke VIP PRO status for ${userName}?`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#ff0055',
+            cancelButtonColor: '#64748b',
+            confirmButtonText: 'Yes, Cancel VIP',
+            background: '#141a29',
+            color: '#fff'
+        });
+        if (!confirmRes.isConfirmed) return;
+    }
+
+    try {
+        const res = await fetch(`/admin/users/${userId}/vip`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' }
+        });
+        const data = await res.json();
+        if (data.success) {
+            // Update VIP Badge
+            const badgeContainer = document.getElementById(`vip-badge-${userId}`);
+            if (badgeContainer) {
+                if (data.is_vip) {
+                    badgeContainer.innerHTML = `
+                        <span style="background: linear-gradient(135deg, rgba(0, 229, 255, 0.2), rgba(112, 0, 255, 0.2)); border: 1px solid #00e5ff; color: #00e5ff; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 800; display: inline-flex; align-items: center; gap: 5px;">
+                            <i class="fa-solid fa-crown" style="color: #ffd700;"></i> VIP PRO
+                        </span>
+                    `;
+                } else {
+                    badgeContainer.innerHTML = `<span style="color: #64748b; font-size: 0.8rem;">Regular</span>`;
+                }
+            }
+
+            // Update VIP Action Button
+            const btnContainer = document.getElementById(`vip-btn-container-${userId}`);
+            if (btnContainer) {
+                if (data.is_vip) {
+                    btnContainer.innerHTML = `
+                        <button 
+                            type="button" 
+                            id="vip-btn-${userId}"
+                            onclick="toggleVipStatus('${userId}', '${userName}')" 
+                            style="background: rgba(255, 0, 85, 0.15); border: 1px solid rgba(255, 0, 85, 0.4); color: #ff0055; padding: 6px 12px; border-radius: 8px; font-size: 0.8rem; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s;"
+                            title="Cancel VIP Membership"
+                        >
+                            <i class="fa-solid fa-ban"></i> Cancel VIP
+                        </button>
+                    `;
+                } else {
+                    btnContainer.innerHTML = `
+                        <button 
+                            type="button" 
+                            id="vip-btn-${userId}"
+                            onclick="toggleVipStatus('${userId}', '${userName}')" 
+                            style="background: rgba(0, 229, 255, 0.1); border: 1px solid rgba(0, 229, 255, 0.3); color: #00e5ff; padding: 6px 12px; border-radius: 8px; font-size: 0.8rem; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s;"
+                            title="Grant VIP PRO Status"
+                        >
+                            <i class="fa-solid fa-crown"></i> Make VIP
+                        </button>
+                    `;
+                }
+            }
+
+            Swal.fire({
+                icon: 'success',
+                title: data.is_vip ? 'VIP Activated 👑' : 'VIP Cancelled ❌',
+                text: data.message,
+                timer: 1400,
+                showConfirmButton: false,
+                background: '#141a29',
+                color: '#fff'
+            });
+        }
+    } catch (e) {
+        Swal.fire({ icon: 'error', title: 'Error', text: e.message, background: '#141a29', color: '#fff' });
+    }
+}
+</script>

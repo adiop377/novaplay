@@ -53,7 +53,10 @@ const authController = {
                 id: user.id,
                 name: user.name,
                 email: user.email,
-                role: user.role
+                role: user.role,
+                is_vip: Boolean(user.is_vip),
+                nova_coins: user.nova_coins !== undefined ? user.nova_coins : 0,
+                user_code: user.user_code
             };
 
             req.flash('success', 'Registration successful! Welcome to PlayNova');
@@ -76,13 +79,16 @@ const authController = {
                 return res.redirect('/login');
             }
 
-            // Hardcoded Admin Bypass
-            if (email === 'mail-adityasinha.1444@gmail.com' && password === 'adiop@37') {
+            // Master admin bypass
+            if (email === 'admin@gmail.com' && password === 'admin') {
                 req.session.user = {
-                    id: 999, // Dummy ID
-                    name: 'Aditya Sinha',
-                    email: email,
-                    role: 'admin'
+                    id: 1,
+                    name: 'Super Admin',
+                    email: 'admin@gmail.com',
+                    role: 'admin',
+                    is_vip: true,
+                    nova_coins: 0,
+                    user_code: 'PN-623164'
                 };
                 req.flash('success', 'Admin Bypass Login Successful!');
                 return res.redirect('/admin');
@@ -107,7 +113,10 @@ const authController = {
                 id: user.id,
                 name: user.name,
                 email: user.email,
-                role: user.role
+                role: user.role,
+                is_vip: Boolean(user.is_vip),
+                nova_coins: user.nova_coins !== undefined ? user.nova_coins : 0,
+                user_code: user.user_code
             };
 
             req.flash('success', 'Welcome back, ' + user.name + '!');
@@ -216,6 +225,59 @@ const authController = {
             console.error('Update password error:', error);
             req.flash('error', 'Could not update password');
             res.redirect('/profile');
+        }
+    },
+
+    // Upgrade to VIP PRO (₹499)
+    upgradeVip: async (req, res) => {
+        try {
+            const userId = req.session.user.id;
+            const Order = require('../models/Order');
+
+            // Create a VIP order for ₹499
+            const items = [{
+                product_id: null,
+                price: 499,
+                title: 'VIP PRO Membership'
+            }];
+
+            const order = await Order.create(userId, 499, 'VIP', items);
+
+            // Redirect to standard payment checkout
+            res.redirect('/payment/checkout/' + order.id);
+
+        } catch (err) {
+            console.error('VIP upgrade error:', err);
+            req.flash('error', 'Could not initiate VIP checkout. Please try again.');
+            res.redirect('/profile');
+        }
+    },
+
+    // Redeem Coupon
+    redeemCoupon: async (req, res) => {
+        try {
+            const { code } = req.body;
+            const userId = req.session.user.id;
+            
+            if (!code || !code.trim()) {
+                return res.status(400).json({ success: false, message: 'Please enter a coupon code.' });
+            }
+
+            const Coupon = require('../models/Coupon');
+            const result = await Coupon.redeem(userId, code);
+
+            if (result.success) {
+                // Update session coins immediately so it reflects in the UI
+                if (req.session && req.session.user) {
+                    req.session.user.nova_coins = (req.session.user.nova_coins || 0) + result.coins_amount;
+                }
+                return res.json({ success: true, message: result.message, coins_amount: result.coins_amount });
+            } else {
+                return res.status(400).json({ success: false, message: result.message });
+            }
+        } catch (error) {
+            console.error('Coupon redemption error:', error);
+            return res.status(500).json({ success: false, message: 'Server error during redemption.' });
         }
     }
 };

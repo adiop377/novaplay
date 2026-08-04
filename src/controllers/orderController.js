@@ -1,11 +1,18 @@
 const Order = require('../models/Order');
 const Cart = require('../models/Cart');
+const User = require('../models/User');
 
 const orderController = {
     // Checkout - Create order from cart
     checkout: async (req, res) => {
         try {
             const userId = req.session.user.id;
+            const useCoins = (
+                req.query.use_coins === '1' || 
+                req.query.use_coins === 'true' || 
+                req.query.use_coins === true ||
+                (req.body && (req.body.use_coins === '1' || req.body.use_coins === 'true' || req.body.use_coins === true))
+            );
 
             // Get cart items
             const cartItems = await Cart.getByUser(userId);
@@ -23,12 +30,38 @@ const orderController = {
             }
 
             // Calculate total
-            const total = await Cart.getTotal(userId);
+            let total = await Cart.getTotal(userId);
+            let coinsDeducted = 0;
+
+            if (useCoins) {
+                const freshUser = await User.findById(userId);
+                const userCoins = freshUser ? (freshUser.nova_coins || 0) : 0;
+                coinsDeducted = Math.min(userCoins, Math.floor(total - 1));
+                if (coinsDeducted > 0) {
+                    total = Math.max(1, total - coinsDeducted);
+                    const updated = await User.deductNovaCoins(userId, coinsDeducted);
+                    req.session.user.nova_coins = updated ? updated.nova_coins : Math.max(0, userCoins - coinsDeducted);
+                }
+            }
+
+            // Create order items array
+            const orderItems = [...cartItems];
+            if (coinsDeducted > 0) {
+                orderItems.push({
+                    product_id: null,
+                    price: -coinsDeducted,
+                    title: `🪙 Nova Coins Discount (-${coinsDeducted} Coins)`
+                });
+            }
 
             // Create order
-            const order = await Order.create(userId, total, null, cartItems);
+            const order = await Order.create(userId, total, null, orderItems);
 
-            req.flash('success', 'Order pre-created! Please complete your payment.');
+            if (coinsDeducted > 0) {
+                req.flash('success', `Order pre-created! Redeemed 🪙 ${coinsDeducted} Nova Coins (-₹${coinsDeducted} Discount).`);
+            } else {
+                req.flash('success', 'Order pre-created! You will receive +125 Nova Coins upon purchase confirmation.');
+            }
             res.redirect('/payment/checkout/' + order.id);
 
         } catch (error) {

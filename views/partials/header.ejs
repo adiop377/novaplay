@@ -8,38 +8,488 @@
     </div>
     <nav class="container">
         <a href="/" class="logo" style="display: flex; align-items: center; gap: 12px; text-decoration: none;">
-            <img src="/images/playnova-logo.png" alt="PlayNova" style="height: 52px; width: auto; object-fit: contain; mix-blend-mode: lighten; display: block;">
-            <span class="logo-text" style="display: flex; align-items: center; line-height: 1; transform: translateY(-2px);">PlayNova</span>
+            <img src="/images/playnova-logo.png" alt="PlayNova"
+                style="height: 48px; width: auto; object-fit: contain; mix-blend-mode: lighten; display: block;">
+            <span class="logo-text"
+                style="display: flex; align-items: center; line-height: 1; transform: translateY(-2px);">PlayNova</span>
         </a>
+
+        <!-- Desktop Nav Links -->
         <ul class="nav-links">
             <li><a href="/">Home</a></li>
             <li><a href="/#ids">Browse IDs</a></li>
-            <li><a href="/topup" class="nav-highlight">💎 Topup</a></li>
-            <li><a href="/sold">Sold History</a></li>
+            <li><a href="/topup">💎 Topup</a></li>
             <li><a href="/#why-us">Why Us</a></li>
             <li><a href="/#reviews">Reviews</a></li>
         </ul>
-        <div class="auth-btns">
-            <a href="/cart" class="cart-nav" id="cartOpenBtn">
-                <span class="cart-icon">🛒</span>
+
+        <!-- Right Side: Cart + Desktop Auth + Mobile 3-Dot Button -->
+        <div class="nav-actions">
+            <a href="/cart" class="cart-nav" id="cartOpenBtn" title="Shopping Cart">
+                <span class="cart-icon"><i class="fa-solid fa-cart-shopping"></i></span>
                 <span class="cart-badge" id="cartCount">0</span>
             </a>
-            <% if (user) { %>
-                <div class="user-menu">
-                    <span class="user-name">Hi, <%= user.name %></span>
-                    <div class="user-dropdown">
-                        <a href="/profile">👤 Profile</a>
-                        <a href="/orders">📦 My Orders</a>
-                        <% if (user.role==='admin' ) { %>
-                            <a href="/admin">⚙️ Admin Panel</a>
-                            <% } %>
-                                <a href="/logout">🚪 Logout</a>
+
+            <!-- Desktop Auth Buttons -->
+            <div class="auth-btns desktop-auth">
+                <% if (user) { %>
+                    <div class="user-menu" id="userMenuContainer">
+                        <div class="user-menu-trigger" id="userMenuTrigger">
+                            <div class="user-trigger-avatar">
+                                <%= user.name ? user.name.charAt(0).toUpperCase() : 'U' %>
+                            </div>
+                            <span class="user-trigger-name"><%= user.name %></span>
+                            <i class="fa-solid fa-chevron-down trigger-chevron"></i>
+                        </div>
+
+                        <!-- LootBar-Inspired Ultra-Premium Dropdown Card -->
+                        <div class="user-dropdown-card" id="userDropdownCard">
+                            <!-- User Profile Header -->
+                            <div class="dd-header">
+                                <div class="dd-avatar">
+                                    <%= user.name ? user.name.charAt(0).toUpperCase() : 'U' %>
+                                    <span class="dd-online-dot"></span>
+                                </div>
+                                <div class="dd-info">
+                                    <div class="dd-name-row">
+                                        <span class="dd-fullname"><%= user.name %></span>
+                                        <% if (user.role === 'admin') { %>
+                                            <span class="dd-badge-admin">ADMIN</span>
+                                        <% } else if (user.is_vip || user.role === 'vip') { %>
+                                            <span class="dd-badge-vip"><i class="fa-solid fa-crown"></i> VIP PRO</span>
+                                        <% } else { %>
+                                            <span class="dd-badge-member">MEMBER</span>
+                                        <% } %>
+                                    </div>
+                                    <div class="dd-meta">
+                                        <span class="dd-id">ID: #<%= user.user_code || ('PN-' + (500000 + ((user.id || 1) * 179424673 + 38491) % 490000)) %></span>
+                                        <% if (!user.is_vip && user.role !== 'admin') { %>
+                                            <span class="dd-dot-sep">•</span>
+                                            <button type="button" class="dd-upgrade-btn" onclick="openVipModal()">
+                                                <i class="fa-solid fa-crown"></i> Get VIP ₹499
+                                            </button>
+                                        <% } else { %>
+                                            <span class="dd-dot-sep">•</span>
+                                            <span class="dd-status"><i class="fa-solid fa-shield-check text-cyan"></i> Verified</span>
+                                        <% } %>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Balance & Points Widget -->
+                            <div class="dd-wallet-widget">
+
+                                <div class="dd-wallet-item" onclick="openNovaCoinsModal()" style="cursor: pointer;" title="Click to view Nova Coins Perks">
+                                    <div class="dd-wallet-val">
+                                        <span class="coin-icon">🪙</span> <%= (user && user.nova_coins !== undefined) ? (user.nova_coins || 0) : 0 %>
+                                    </div>
+                                    <div class="dd-wallet-lbl">
+                                        <span>Nova Coins</span>
+                                        <span class="dd-tag-new">NEW</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Action Items List -->
+                            <div class="dd-menu-list">
+                                <a href="/orders" class="dd-item">
+                                    <div class="dd-item-left">
+                                        <div class="dd-icon-box icon-purple">
+                                            <i class="fa-solid fa-box-archive"></i>
+                                        </div>
+                                        <div class="dd-item-text">
+                                            <span class="dd-item-title">Buy History / Orders</span>
+                                            <span class="dd-item-sub">Track & view credentials</span>
+                                        </div>
+                                    </div>
+                                    <i class="fa-solid fa-chevron-right dd-arrow"></i>
+                                </a>
+
+                                <a href="/profile" class="dd-item">
+                                    <div class="dd-item-left">
+                                        <div class="dd-icon-box icon-cyan">
+                                            <i class="fa-solid fa-user-shield"></i>
+                                        </div>
+                                        <div class="dd-item-text">
+                                            <span class="dd-item-title">My Profile & Security</span>
+                                            <span class="dd-item-sub">Password & account info</span>
+                                        </div>
+                                    </div>
+                                    <i class="fa-solid fa-chevron-right dd-arrow"></i>
+                                </a>
+
+                                <a href="/topup" class="dd-item">
+                                    <div class="dd-item-left">
+                                        <div class="dd-icon-box icon-blue">
+                                            <i class="fa-solid fa-gem"></i>
+                                        </div>
+                                        <div class="dd-item-text">
+                                            <span class="dd-item-title">Diamond Topup</span>
+                                            <span class="dd-item-sub">Instant in-game topup</span>
+                                        </div>
+                                    </div>
+                                    <span class="dd-item-badge">Instant</span>
+                                </a>
+
+                                <a href="#" onclick="openRedeemModal(event)" class="dd-item">
+                                    <div class="dd-item-left">
+                                        <div class="dd-icon-box icon-green" style="background: rgba(0, 255, 102, 0.15); color: #00ff66;">
+                                            <i class="fa-solid fa-gift"></i>
+                                        </div>
+                                        <div class="dd-item-text">
+                                            <span class="dd-item-title">Redeem Coupon</span>
+                                            <span class="dd-item-sub">Claim Nova Coins</span>
+                                        </div>
+                                    </div>
+                                    <i class="fa-solid fa-chevron-right dd-arrow"></i>
+                                </a>
+
+                                <a href="https://t.me/premiumffzone" target="_blank" class="dd-item">
+                                    <div class="dd-item-left">
+                                        <div class="dd-icon-box icon-green">
+                                            <i class="fa-solid fa-headset"></i>
+                                        </div>
+                                        <div class="dd-item-text">
+                                            <span class="dd-item-title">24/7 Help Center</span>
+                                            <span class="dd-item-sub">Telegram live support</span>
+                                        </div>
+                                    </div>
+                                    <i class="fa-solid fa-chevron-right dd-arrow"></i>
+                                </a>
+
+                                <% if (user.role === 'admin') { %>
+                                    <a href="/admin" class="dd-item dd-admin-item">
+                                        <div class="dd-item-left">
+                                            <div class="dd-icon-box icon-gold">
+                                                <i class="fa-solid fa-sliders"></i>
+                                            </div>
+                                            <div class="dd-item-text">
+                                                <span class="dd-item-title">Admin Management</span>
+                                                <span class="dd-item-sub">Manage IDs, orders & logs</span>
+                                            </div>
+                                        </div>
+                                        <i class="fa-solid fa-chevron-right dd-arrow"></i>
+                                    </a>
+                                <% } %>
+                            </div>
+
+                            <!-- Footer / Logout -->
+                            <div class="dd-footer">
+                                <a href="/logout" class="dd-logout-btn">
+                                    <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                                    <span>Log Out</span>
+                                </a>
+                            </div>
+                        </div>
                     </div>
-                </div>
                 <% } else { %>
                     <a href="/login" class="btn btn-primary header-btn">Login Now</a>
                     <a href="/register" class="btn btn-primary header-btn">Register Now</a>
-                    <% } %>
+                <% } %>
+            </div>
+
+            <!-- Mobile 3-Dot / Hamburger Toggle Button -->
+            <button class="mobile-toggle-btn" id="mobileMenuBtn" aria-label="Toggle Menu" title="Menu">
+                <i class="fa-solid fa-ellipsis-vertical"></i>
+            </button>
         </div>
     </nav>
+
+    <!-- Mobile Drawer Navigation -->
+    <div class="mobile-menu-drawer" id="mobileMenuDrawer">
+        <div class="mobile-drawer-header">
+            <div class="mobile-drawer-brand">
+                <img src="/images/playnova-logo.png" alt="PlayNova"
+                    style="height: 36px; width: auto; object-fit: contain; mix-blend-mode: lighten;">
+                <span>PlayNova</span>
+            </div>
+            <button class="mobile-drawer-close" id="mobileMenuClose" aria-label="Close Menu">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <div class="mobile-drawer-body">
+            <ul class="mobile-nav-list">
+                <li><a href="/" class="mobile-nav-link"><i class="fa-solid fa-house"></i> <span>Home</span></a></li>
+                <li><a href="/#ids" class="mobile-nav-link"><i class="fa-solid fa-gamepad"></i> <span>Browse IDs</span></a></li>
+                <li><a href="/topup" class="mobile-nav-link"><i class="fa-solid fa-gem"></i> <span>Topup</span></a></li>
+                <li><a href="/#why-us" class="mobile-nav-link"><i class="fa-solid fa-shield-halved"></i> <span>Why Us</span></a></li>
+                <li><a href="/#reviews" class="mobile-nav-link"><i class="fa-solid fa-star"></i> <span>Reviews</span></a></li>
+            </ul>
+
+            <div class="mobile-drawer-divider"></div>
+
+            <div class="mobile-drawer-auth">
+                <% if (user) { %>
+                    <div class="mobile-user-card">
+                        <div class="mobile-user-info">
+                            <div class="mobile-avatar">
+                                <%= user.name ? user.name.charAt(0).toUpperCase() : 'U' %>
+                            </div>
+                            <div>
+                                <div class="mobile-username">
+                                    <%= user.name %>
+                                </div>
+                                <div class="mobile-userrole">
+                                    <% if (user.role === 'admin') { %>
+                                        <span class="text-gold">Admin</span>
+                                    <% } else if (user.is_vip || user.role === 'vip') { %>
+                                        <span class="text-cyan"><i class="fa-solid fa-crown"></i> VIP PRO Member</span>
+                                    <% } else { %>
+                                        <span style="color: #94a3b8;">Free Member</span>
+                                    <% } %>
+                                </div>
+                            </div>
+                        </div>
+
+                        <% if (!user.is_vip && user.role !== 'admin') { %>
+                            <button type="button" class="mobile-get-vip-btn" onclick="openVipModal()">
+                                <i class="fa-solid fa-crown"></i> Upgrade to VIP PRO (₹499)
+                            </button>
+                        <% } %>
+
+                        <!-- Mobile Wallet Mini Card -->
+                        <div class="mobile-wallet-mini">
+                            <div onclick="openNovaCoinsModal()" style="cursor: pointer; display: flex; justify-content: space-between; width: 100%;"><span>Nova Coins:</span> <strong>🪙 <%= (user && user.nova_coins !== undefined) ? (user.nova_coins || 0) : 0 %></strong></div>
+                        </div>
+
+                        <div class="mobile-user-actions">
+                            <a href="/orders" class="mobile-user-btn"><i class="fa-solid fa-box-archive"></i> My Orders</a>
+                            <a href="/profile" class="mobile-user-btn"><i class="fa-solid fa-user-shield"></i> Profile</a>
+                            <a href="#" onclick="openRedeemModal(event)" class="mobile-user-btn" style="color: #00ff66;"><i class="fa-solid fa-gift"></i> Redeem Coupon</a>
+                            <% if (user.role==='admin' ) { %>
+                                <a href="/admin" class="mobile-user-btn admin"><i class="fa-solid fa-gear"></i> Admin Panel</a>
+                            <% } %>
+                            <a href="/logout" class="mobile-user-btn logout"><i class="fa-solid fa-arrow-right-from-bracket"></i> Logout</a>
+                        </div>
+                    </div>
+                <% } else { %>
+                    <div class="mobile-guest-buttons">
+                        <a href="/login" class="btn btn-primary w-100 mobile-auth-btn"><i class="fa-solid fa-right-to-bracket"></i> Login Now</a>
+                        <a href="/register" class="btn btn-secondary w-100 mobile-auth-btn"><i class="fa-solid fa-user-plus"></i> Register Now</a>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+    </div>
+    <div class="mobile-menu-backdrop" id="mobileMenuBackdrop"></div>
+
+    <!-- ==================== GLOBAL VIP PRO MEMBERSHIP MODAL (₹499) ==================== -->
+    <div class="custom-modal-overlay" id="vipProModal">
+        <div class="custom-modal-box vip-modal-box">
+            <button type="button" class="modal-close-btn vip-close" onclick="closeVipModal()" aria-label="Close">&times;</button>
+            <div class="vip-modal-banner">
+                <div class="vip-crown-icon">👑</div>
+                <h3 class="vip-modal-title">PlayNova <span class="neon-text-cyan">VIP PRO</span> Pass</h3>
+                <div class="vip-price-tag">₹499 <span class="vip-price-sub">/ Lifetime Access</span></div>
+            </div>
+            
+            <div class="vip-modal-content">
+                <div class="vip-perks-list">
+                    <div class="vip-perk-item">
+                        <div class="vip-perk-icon"><i class="fa-solid fa-crown text-cyan"></i></div>
+                        <div class="vip-perk-text">
+                            <strong>Exclusive VIP PRO Crown Badge</strong>
+                            <span>Displayed on your profile, header, and community</span>
+                        </div>
+                    </div>
+                    <div class="vip-perk-item">
+                        <div class="vip-perk-icon"><i class="fa-solid fa-bolt text-yellow"></i></div>
+                        <div class="vip-perk-text">
+                            <strong>Instant Priority 2-Min Delivery</strong>
+                            <span>Immediate access to ID login credentials</span>
+                        </div>
+                    </div>
+                    <div class="vip-perk-item">
+                        <div class="vip-perk-icon"><i class="fa-solid fa-gem text-blue"></i></div>
+                        <div class="vip-perk-text">
+                            <strong>Extra 5% Topup Bonus</strong>
+                            <span>Extra free diamonds on all topup packages</span>
+                        </div>
+                    </div>
+                    <div class="vip-perk-item">
+                        <div class="vip-perk-icon"><i class="fa-solid fa-headset text-green"></i></div>
+                        <div class="vip-perk-text">
+                            <strong>Dedicated Telegram VIP Hotline</strong>
+                            <span>24/7 priority 1-on-1 human support</span>
+                        </div>
+                    </div>
+                </div>
+
+                <% if (user) { %>
+                    <form action="/vip/upgrade" method="POST" class="vip-form-action">
+                        <button type="submit" class="btn btn-vip-buy-glow w-100">
+                            <i class="fa-solid fa-crown"></i> Activate VIP PRO — ₹499
+                        </button>
+                    </form>
+                <% } else { %>
+                    <a href="/login" class="btn btn-vip-buy-glow w-100 text-center" style="display: block; text-decoration: none;">
+                        <i class="fa-solid fa-right-to-bracket"></i> Login to Get VIP PRO — ₹499
+                    </a>
+                <% } %>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== GLOBAL MODAL: NOVA COINS REWARDS ==================== -->
+    <div class="custom-modal-overlay" id="novaCoinsModal">
+        <div class="custom-modal-box nova-coins-modal-box">
+            <button type="button" class="modal-close-btn nova-close" onclick="closeNovaCoinsModal()" aria-label="Close">&times;</button>
+            <div class="nova-coins-modal-banner">
+                <div class="nova-coin-large-icon">🪙</div>
+                <h3 class="nova-coins-modal-title">PlayNova <span class="neon-text-green">Nova Coins</span></h3>
+                <div class="nova-coins-balance-pill">
+                    Wallet Balance: <strong>🪙 <%= (user && user.nova_coins !== undefined) ? (user.nova_coins || 0) : 0 %> Coins</strong> (₹<%= (user && user.nova_coins !== undefined) ? (user.nova_coins || 0) : 0 %> Value)
+                </div>
+            </div>
+            
+            <div class="nova-coins-modal-content">
+                <div class="nova-rules-grid">
+                    <div class="nova-rule-card">
+                        <div class="nova-rule-icon"><i class="fa-solid fa-gift text-yellow"></i></div>
+                        <div class="nova-rule-text">
+                            <strong>Earn 125 Coins per ID Purchase</strong>
+                            <span>Har successful Free Fire ID order par customer ko <strong>125 Nova Coins cashback</strong> wallet me return milta hai!</span>
+                        </div>
+                    </div>
+                    <div class="nova-rule-card">
+                        <div class="nova-rule-icon"><i class="fa-solid fa-tags text-cyan"></i></div>
+                        <div class="nova-rule-text">
+                            <strong>Instant Discount on IDs & Topup</strong>
+                            <span>Apne Nova Coins ko Free Fire IDs kharidte waqt ya Diamond Topup karte waqt direct checkout me deduct kar sakte hain.</span>
+                        </div>
+                    </div>
+                    <div class="nova-rule-card">
+                        <div class="nova-rule-icon"><i class="fa-solid fa-indian-rupee-sign text-green"></i></div>
+                        <div class="nova-rule-text">
+                            <strong>1 Nova Coin = ₹1 Rupee Value</strong>
+                            <span>100% Guaranteed flat valuation. 125 Coins = ₹125 Instant Deduction on checkout!</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer" style="padding-top: 15px;">
+                    <a href="/#ids" class="btn btn-primary w-100" onclick="closeNovaCoinsModal()">
+                        <i class="fa-solid fa-gamepad"></i> Browse IDs & Earn 125 Coins
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openVipModal() {
+            const modal = document.getElementById('vipProModal');
+            if (modal) {
+                modal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        function closeVipModal() {
+            const modal = document.getElementById('vipProModal');
+            if (modal) {
+                modal.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        }
+
+        function openNovaCoinsModal() {
+            const modal = document.getElementById('novaCoinsModal');
+            if (modal) {
+                modal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        function closeNovaCoinsModal() {
+            const modal = document.getElementById('novaCoinsModal');
+            if (modal) {
+                modal.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        }
+
+        async function openRedeemModal(event) {
+            if (event) event.preventDefault();
+            
+            const { value: code } = await Swal.fire({
+                title: 'Redeem Coupon 🎟️',
+                input: 'text',
+                inputLabel: 'Enter your coupon code',
+                inputPlaceholder: 'e.g. NOVA-XXXX',
+                showCancelButton: true,
+                confirmButtonColor: '#00ff66',
+                cancelButtonColor: '#1e293b',
+                confirmButtonText: 'Redeem Now',
+                background: '#0b1120',
+                color: '#fff',
+                customClass: {
+                    title: 'text-cyan',
+                    input: 'bg-darker border-glass text-white'
+                },
+                inputValidator: (value) => {
+                    if (!value) {
+                        return 'You need to write something!'
+                    }
+                }
+            });
+
+            if (code) {
+                Swal.fire({
+                    title: 'Redeeming...',
+                    text: 'Checking code validity...',
+                    allowOutsideClick: false,
+                    showConfirmButton: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+
+                try {
+                    const response = await fetch('/user/redeem-coupon', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify({ code })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (response.ok && data.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success!',
+                            text: data.message,
+                            confirmButtonColor: '#00ff66',
+                            background: '#0b1120',
+                            color: '#fff'
+                        }).then(() => {
+                            window.location.reload();
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Oops...',
+                            text: data.message || 'Invalid coupon code.',
+                            confirmButtonColor: '#ef4444',
+                            background: '#0b1120',
+                            color: '#fff'
+                        });
+                    }
+                } catch (error) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Network error. Please try again later.',
+                        confirmButtonColor: '#ef4444',
+                        background: '#0b1120',
+                        color: '#fff'
+                    });
+                }
+            }
+        }
+    </script>
 </header>

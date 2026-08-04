@@ -1,10 +1,7 @@
 <section class="topup-page" style="padding-top: 150px; min-height: 100vh; position: relative;">
     <!-- Background Animations (Same as Home) -->
     <div class="hero-bg-animations">
-        <div class="bubbles">
-            <div class="bubble"></div><div class="bubble"></div><div class="bubble"></div><div class="bubble"></div>
-            <div class="bubble"></div><div class="bubble"></div><div class="bubble"></div><div class="bubble"></div>
-        </div>
+
         <div class="glow-orb orb-1" style="background: rgba(0, 229, 255, 0.1);"></div>
         <div class="glow-orb orb-2" style="background: rgba(160, 32, 240, 0.1);"></div>
     </div>
@@ -248,27 +245,91 @@
             return;
         }
 
+        const userCoins = <%= (user && user.nova_coins !== undefined) ? (user.nova_coins || 0) : 0 %>;
+        const maxDeduct = Math.min(userCoins, Math.max(0, price - 1));
+
+        let coinHtml = '';
+        if (maxDeduct > 0) {
+            coinHtml = `
+                <div style="background: rgba(0, 229, 255, 0.08); border: 1px solid rgba(0, 229, 255, 0.35); border-radius: 10px; padding: 12px; margin-top: 14px;">
+                    <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; color: #fff; font-size: 0.92rem; user-select: none;">
+                        <input type="checkbox" id="topupUseCoins" style="accent-color: #00e5ff; width: 20px; height: 20px; cursor: pointer;">
+                        <span>Redeem <strong>🪙 ${maxDeduct} Nova Coins</strong> (-₹${maxDeduct} OFF)</span>
+                    </label>
+                </div>
+            `;
+        }
+
         // Logic to redirect to payment
         const result = await Swal.fire({
-            title: 'Confirm Topup',
-            html: `<div style="text-align: left; padding: 10px;">
-                    <p><b>Player ID:</b> ${uid}</p>
-                    <p><b>Amount:</b> 💎 ${amount} Diamonds</p>
-                    <p><b>Price:</b> ₹${price}</p>
+            title: '<span style="font-family: Orbitron, sans-serif; font-size: 1.35rem; color: #fff;">Confirm Topup Order</span>',
+            html: `<div style="text-align: left; padding: 10px; font-family: 'Rajdhani', sans-serif; font-size: 1.05rem;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 6px;">
+                        <span style="color: #94a3b8;">Player ID:</span>
+                        <strong style="color: #00e5ff; letter-spacing: 0.5px;">${uid}</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 6px;">
+                        <span style="color: #94a3b8;">Topup Pack:</span>
+                        <strong style="color: #ffd700;">💎 ${amount} Diamonds</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 6px;">
+                        <span style="color: #94a3b8;">Base Price:</span>
+                        <strong id="topupBasePrice">₹${price}</strong>
+                    </div>
+                    <div id="topupCoinsDiscountRow" style="display: none; justify-content: space-between; margin-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 6px; color: #00ff66;">
+                        <span>Nova Coins Discount:</span>
+                        <strong>-₹${maxDeduct} (🪙 ${maxDeduct} Coins)</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-top: 12px; font-size: 1.25rem; font-weight: 800; padding-top: 6px;">
+                        <span style="color: #fff;">Total Payable:</span>
+                        <span id="topupTotalDisplay" style="color: #00e5ff; text-shadow: 0 0 10px rgba(0,229,255,0.5);">₹${price}</span>
+                    </div>
+                    ${coinHtml}
                    </div>`,
             showCancelButton: true,
             confirmButtonText: 'Proceed to Payment 🔒',
-            background: '#1a1b2e',
+            cancelButtonText: 'Cancel',
+            background: '#141a29',
             color: '#fff',
-            confirmButtonColor: '#00e5ff'
+            confirmButtonColor: '#00e5ff',
+            didOpen: () => {
+                const chk = document.getElementById('topupUseCoins');
+                const discRow = document.getElementById('topupCoinsDiscountRow');
+                const totalEl = document.getElementById('topupTotalDisplay');
+                if (chk) {
+                    chk.addEventListener('change', () => {
+                        if (chk.checked) {
+                            if (discRow) discRow.style.display = 'flex';
+                            const finalP = Math.max(1, price - maxDeduct);
+                            if (totalEl) {
+                                totalEl.innerText = '₹' + finalP;
+                                totalEl.style.color = '#00ff66';
+                                totalEl.style.textShadow = '0 0 12px rgba(0,255,102,0.8)';
+                            }
+                        } else {
+                            if (discRow) discRow.style.display = 'none';
+                            if (totalEl) {
+                                totalEl.innerText = '₹' + price;
+                                totalEl.style.color = '#00e5ff';
+                                totalEl.style.textShadow = '0 0 10px rgba(0,229,255,0.5)';
+                            }
+                        }
+                    });
+                }
+            },
+            preConfirm: () => {
+                const chk = document.getElementById('topupUseCoins');
+                return { useCoins: chk ? chk.checked : false };
+            }
         });
 
         if (result.isConfirmed) {
+            const useCoins = result.value ? result.value.useCoins : false;
             try {
                 const response = await fetch('/topup/order', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ amount, price, uid })
+                    body: JSON.stringify({ amount, price, uid, use_coins: useCoins })
                 });
 
                 if (response.status === 401) {

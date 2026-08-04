@@ -1,0 +1,140 @@
+<div class="admin-users-page" style="padding-bottom: 50px;">
+    <!-- Page Header -->
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; margin-bottom: 25px;">
+        <div>
+            <h2 style="font-family: 'Orbitron', sans-serif; font-size: 1.5rem; color: #fff; margin: 0; display: flex; align-items: center; gap: 10px;">
+                <i class="fa-solid fa-ticket" style="color: #00ff66;"></i> Nova Coins Coupon Generator
+            </h2>
+            <p style="color: #94a3b8; font-size: 0.9rem; margin: 5px 0 0 0;">Create and manage redeemable codes for users</p>
+        </div>
+    </div>
+
+    <!-- Generate Coupon Box -->
+    <div style="background: linear-gradient(135deg, rgba(20, 26, 41, 0.95), rgba(15, 23, 42, 0.95)); border: 1px solid rgba(0, 255, 102, 0.3); border-radius: 16px; padding: 22px; margin-bottom: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.4);">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+            <div style="width: 38px; height: 38px; border-radius: 10px; background: rgba(0, 255, 102, 0.15); display: flex; align-items: center; justify-content: center; color: #00ff66; font-size: 1.2rem;">
+                <i class="fa-solid fa-plus"></i>
+            </div>
+            <div>
+                <h3 style="font-family: 'Orbitron', sans-serif; font-size: 1.1rem; color: #00ff66; margin: 0;">Generate New Code</h3>
+            </div>
+        </div>
+
+        <form action="/admin/coupons/generate" method="POST" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; align-items: end;">
+            <div>
+                <label style="display: block; color: #cbd5e1; font-size: 0.85rem; margin-bottom: 6px; font-weight: 600;">Custom Code (Optional)</label>
+                <input 
+                    type="text" 
+                    name="customCode" 
+                    placeholder="e.g. DIWALI-500 (Leave blank for random)" 
+                    style="width: 100%; background: #0b1120; border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 10px 14px; border-radius: 8px; font-size: 0.9rem;"
+                >
+            </div>
+
+            <div>
+                <label style="display: block; color: #cbd5e1; font-size: 0.85rem; margin-bottom: 6px; font-weight: 600;">Coins Amount <span style="color:red;">*</span></label>
+                <input 
+                    type="number" 
+                    name="coinsAmount" 
+                    required 
+                    min="1"
+                    placeholder="e.g. 500" 
+                    style="width: 100%; background: #0b1120; border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 10px 14px; border-radius: 8px; font-size: 0.9rem;"
+                >
+            </div>
+
+            <div>
+                <label style="display: block; color: #cbd5e1; font-size: 0.85rem; margin-bottom: 6px; font-weight: 600;">Max Uses <span style="color:red;">*</span></label>
+                <input 
+                    type="number" 
+                    name="maxUses" 
+                    required
+                    min="1"
+                    value="1"
+                    placeholder="e.g. 1 or 100" 
+                    style="width: 100%; background: #0b1120; border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 10px 14px; border-radius: 8px; font-size: 0.9rem;"
+                >
+            </div>
+
+            <div>
+                <button type="submit" class="admin-btn" style="width: 100%; background: #00ff66; color: #000; font-weight: 800; font-family: 'Orbitron', sans-serif; padding: 12px; border: none; border-radius: 8px; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s;">
+                    <i class="fa-solid fa-magic"></i> Generate
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Coupons Table -->
+    <div style="background: var(--card-bg); border-radius: 16px; border: 1px solid var(--glass-border); overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+        <div style="overflow-x: auto;">
+            <table class="admin-table" style="width: 100%; border-collapse: collapse; text-align: left;">
+                <thead>
+                    <tr style="background: rgba(255,255,255,0.03); border-bottom: 1px solid rgba(255,255,255,0.1);">
+                        <th style="padding: 15px; color: #94a3b8; font-weight: 600; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px;">Coupon Code</th>
+                        <th style="padding: 15px; color: #94a3b8; font-weight: 600; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px;">Reward</th>
+                        <th style="padding: 15px; color: #94a3b8; font-weight: 600; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px;">Usage</th>
+                        <th style="padding: 15px; color: #94a3b8; font-weight: 600; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px;">Status</th>
+                        <th style="padding: 15px; color: #94a3b8; font-weight: 600; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px;">Created</th>
+                        <th style="padding: 15px; color: #94a3b8; font-weight: 600; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; text-align: right;">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% if (coupons.length > 0) { %>
+                        <% coupons.forEach(coupon => { %>
+                            <tr style="border-bottom: 1px solid rgba(255,255,255,0.05); transition: background 0.2s;">
+                                <td style="padding: 15px;">
+                                    <div style="font-family: monospace; font-size: 1.1rem; color: #fff; background: rgba(255,255,255,0.1); padding: 4px 10px; border-radius: 6px; display: inline-block; letter-spacing: 1px;"><%= coupon.code %></div>
+                                </td>
+                                <td style="padding: 15px;">
+                                    <div style="color: #ffd700; font-weight: bold;">🪙 <%= coupon.coins_amount %> Coins</div>
+                                </td>
+                                <td style="padding: 15px;">
+                                    <div style="font-size: 0.9rem; color: <%= coupon.current_uses >= coupon.max_uses ? '#ef4444' : '#94a3b8' %>">
+                                        <%= coupon.current_uses %> / <%= coupon.max_uses %>
+                                        <% if (coupon.current_uses >= coupon.max_uses) { %>
+                                            <span style="font-size: 0.7rem; background: rgba(239, 68, 68, 0.2); padding: 2px 6px; border-radius: 4px; color: #ef4444; margin-left: 5px;">DEPLETED</span>
+                                        <% } %>
+                                    </div>
+                                </td>
+                                <td style="padding: 15px;">
+                                    <div id="status-<%= coupon.id %>">
+                                        <% if (coupon.is_active) { %>
+                                            <span style="display: inline-flex; align-items: center; gap: 5px; color: #00ff66; font-size: 0.8rem; background: rgba(0,255,102,0.1); padding: 4px 8px; border-radius: 20px; border: 1px solid rgba(0,255,102,0.2);">
+                                                <i class="fa-solid fa-circle-check"></i> Active
+                                            </span>
+                                        <% } else { %>
+                                            <span style="display: inline-flex; align-items: center; gap: 5px; color: #ef4444; font-size: 0.8rem; background: rgba(239,68,68,0.1); padding: 4px 8px; border-radius: 20px; border: 1px solid rgba(239,68,68,0.2);">
+                                                <i class="fa-solid fa-circle-xmark"></i> Disabled
+                                            </span>
+                                        <% } %>
+                                    </div>
+                                </td>
+                                <td style="padding: 15px; color: #94a3b8; font-size: 0.85rem;">
+                                    <%= new Date(coupon.created_at).toLocaleDateString('en-IN') %>
+                                </td>
+                                <td style="padding: 15px; text-align: right;">
+                                    <form action="/admin/coupons/<%= coupon.id %>/toggle" method="POST" style="display:inline;">
+                                        <button type="submit" class="admin-btn" style="background: rgba(255,255,255,0.05); color: #fff; border: 1px solid rgba(255,255,255,0.1); padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 0.85rem; transition: background 0.2s;">
+                                            <% if (coupon.is_active) { %>
+                                                <i class="fa-solid fa-ban" style="color: #ef4444;"></i> Disable
+                                            <% } else { %>
+                                                <i class="fa-solid fa-check" style="color: #00ff66;"></i> Enable
+                                            <% } %>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        <% }); %>
+                    <% } else { %>
+                        <tr>
+                            <td colspan="6" style="padding: 40px; text-align: center; color: #64748b;">
+                                <i class="fa-solid fa-ticket" style="font-size: 3rem; opacity: 0.2; margin-bottom: 15px; display: block;"></i>
+                                No coupons generated yet. Use the form above to create one.
+                            </td>
+                        </tr>
+                    <% } %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

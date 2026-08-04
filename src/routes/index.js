@@ -6,7 +6,7 @@ const { isAuthenticated } = require('../middleware/auth');
 
 // Home page - Products listing
 router.get('/', productController.getAllProducts);
-router.get('/sold', productController.showSoldProducts);
+router.get('/sold', (req, res) => res.redirect('/'));
 router.get('/topup', (req, res) => {
     res.render('pages/topup', { title: 'Free Fire Diamond Topup', filters: {} });
 });
