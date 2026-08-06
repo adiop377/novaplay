@@ -31,6 +31,9 @@ app.use(cookieParser());
 // Static Files
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Trust Proxy for Vercel environments
+app.set('trust proxy', 1);
+
 // Session Configuration
 app.use(session({
     store: new pgSession({
