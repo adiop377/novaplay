@@ -10,16 +10,20 @@ const pool = require('./src/config/db');
 const cookieParser = require('cookie-parser');
 const flash = require('connect-flash');
 const path = require('path');
+const http = require('http');
+const compression = require('compression');
+const { Server } = require("socket.io");
 
 const app = express();
-
-// View Engine Setup - EJS
+const server = http.createServer(app);
+const io = new Server(server);
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 app.use(expressLayouts);
 app.set('layout', 'layouts/main');
 
 // Middleware
+app.use(compression());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
@@ -225,10 +229,91 @@ app.use((err, req, res, next) => {
 // Start Server (only if not running in Vercel)
 if (process.env.NODE_ENV !== 'production') {
     const PORT = process.env.PORT || 3000;
-    app.listen(PORT, () => {
+    server.listen(PORT, () => {
         console.log(`🚀 PlayNova running at http://localhost:${PORT}`);
     });
 }
 
+// Socket.IO Admin Dashboard Logic
+const adminNamespace = io.of('/admin');
+
+let lastPayload = null;
+let activeConnections = 0;
+
+const pushLiveStatsGlobal = async () => {
+    if (activeConnections === 0) return; // Only run if there are connected clients
+    
+    try {
+        // Simulated live data
+        const activeVisitors = Math.floor(Math.random() * (45 - 15 + 1) + 15);
+        const onlineUsers = Math.floor(activeVisitors * 0.4);
+        
+        // Randomly generate 1-3 live activity events
+        const activities = [];
+        const actions = ['viewed product', 'added to cart', 'initiated checkout', 'logged in', 'searched'];
+        for(let i=0; i<Math.floor(Math.random() * 3) + 1; i++) {
+            activities.push({
+                id: Date.now() + i,
+                user: `Guest_${Math.floor(Math.random() * 9000)+1000}`,
+                action: actions[Math.floor(Math.random() * actions.length)],
+                time: new Date().toLocaleTimeString()
+            });
+        }
+
+        // Simulated browser/device data
+        const deviceStats = { desktop: 65, mobile: 30, tablet: 5 };
+        const browserStats = { chrome: 55, safari: 25, firefox: 10, other: 10 };
+        
+        // Fetch real basic stats from DB to combine with live data
+        const orderRes = await pool.query(`
+            SELECT 
+                COUNT(*) as total,
+                SUM(total) as revenue 
+            FROM orders 
+            WHERE created_at >= CURRENT_DATE
+        `);
+        const todayOrders = parseInt(orderRes.rows[0].total || 0);
+        const todayRevenue = parseFloat(orderRes.rows[0].revenue || 0);
+
+        // Construct payload
+        const payload = {
+            activeVisitors,
+            onlineUsers,
+            todayOrders,
+            todayRevenue,
+            activities,
+            deviceStats,
+            browserStats,
+            timestamp: new Date().toISOString()
+        };
+
+        // Only emit if data changed in meaningful way (for stats like orders/revenue) or just emit everything
+        // For simplicity and debounce, we just broadcast every 5 seconds.
+        adminNamespace.emit('dashboardData', payload);
+        lastPayload = payload;
+    } catch (error) {
+        console.error('Error pushing live stats:', error);
+    }
+};
+
+// Global Interval for admin updates every 5 seconds instead of 3 seconds per client
+setInterval(pushLiveStatsGlobal, 5000);
+
+adminNamespace.on('connection', (socket) => {
+    console.log('Admin dashboard connected via Socket.IO');
+    activeConnections++;
+    
+    // Push the latest known payload immediately to the newly connected client
+    if (lastPayload) {
+        socket.emit('dashboardData', lastPayload);
+    } else {
+        pushLiveStatsGlobal();
+    }
+
+    socket.on('disconnect', () => {
+        activeConnections--;
+    });
+});
+
 // Export for Vercel Serverless
-module.exports = app;
+module.exports = server;

@@ -10,8 +10,10 @@ const adminController = {
     // Dashboard
     dashboard: async (req, res) => {
         try {
-            const productStats = await Product.getStats();
-            const orderStats = await Order.getStats();
+            const [productStats, orderStats] = await Promise.all([
+                Product.getStats(),
+                Order.getStats()
+            ]);
 
             res.render('admin/dashboard', {
                 title: 'Admin Dashboard - PlayNova',

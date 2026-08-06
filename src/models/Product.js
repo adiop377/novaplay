@@ -1,5 +1,8 @@
 const pool = require('../config/db');
 
+let statsCache = null;
+let statsCacheTime = null;
+
 const Product = {
     // Get all products with optional filters
     async getAll(filters = {}) {
@@ -146,6 +149,10 @@ const Product = {
 
     // Get stats for admin dashboard
     async getStats() {
+        if (statsCache && statsCacheTime && (Date.now() - statsCacheTime < 60000)) {
+            return statsCache;
+        }
+
         const result = await pool.query(`
             SELECT 
                 COUNT(*) as total_products,
@@ -153,7 +160,10 @@ const Product = {
                 COALESCE(SUM(price) FILTER (WHERE is_sold = false), 0) as available_value
             FROM products
         `);
-        return result.rows[0];
+        
+        statsCache = result.rows[0];
+        statsCacheTime = Date.now();
+        return statsCache;
     }
 };
 

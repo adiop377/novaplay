@@ -1,5 +1,8 @@
 const pool = require('../config/db');
 
+let statsCache = null;
+let statsCacheTime = null;
+
 const Order = {
     // Create new order (can be from cart or direct topup)
     async create(userId, total, player_id = null, items = []) {
@@ -132,6 +135,10 @@ const Order = {
 
     // Get order stats (admin)
     async getStats() {
+        if (statsCache && statsCacheTime && (Date.now() - statsCacheTime < 60000)) {
+            return statsCache;
+        }
+
         const result = await pool.query(`
             SELECT 
                 COUNT(*) as total_orders,
@@ -141,7 +148,10 @@ const Order = {
                 COALESCE(SUM(total) FILTER (WHERE payment_status = 'paid'), 0) as total_revenue
             FROM orders
         `);
-        return result.rows[0];
+        
+        statsCache = result.rows[0];
+        statsCacheTime = Date.now();
+        return statsCache;
     },
 
     // Get confirmed topup orders for sold history

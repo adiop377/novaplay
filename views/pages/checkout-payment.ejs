@@ -4,8 +4,21 @@
 
     <div class="checkout-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px;">
         <!-- Order Summary -->
-        <div class="order-summary card-theme" style="background: var(--card-bg); padding: 30px; border-radius: 20px; border: 1px solid var(--glass-border);">
-            <h3 style="margin-bottom: 20px; color: var(--primary-neon);">Order Summary (Order #<%= order.id %>)</h3>
+        <div class="order-summary card-theme" style="background: linear-gradient(145deg, rgba(20, 25, 35, 0.95), rgba(15, 20, 28, 0.98)); padding: 40px; border-radius: 24px; border: 1px solid rgba(0, 229, 255, 0.15); box-shadow: 0 20px 40px rgba(0,0,0,0.5); backdrop-filter: blur(20px);">
+            
+            <!-- Store & Order Header -->
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 30px; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 25px;">
+                <div>
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                        <h2 style="margin: 0; color: #fff; font-size: 1.7rem; font-weight: 800; letter-spacing: 0.5px;">PlayNova Digital</h2>
+                        <span style="background: rgba(0, 255, 102, 0.15); color: #00ff66; padding: 5px 10px; border-radius: 8px; font-size: 0.75rem; font-weight: 700; display: flex; align-items: center; gap: 5px; border: 1px solid rgba(0, 255, 102, 0.3); text-transform: uppercase; letter-spacing: 0.5px;">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                            Verified Merchant
+                        </span>
+                    </div>
+                    <div style="color: #64748b; font-size: 0.95rem; font-family: monospace; letter-spacing: 0.5px;">Order ID: <span style="color: #94a3b8;">#<%= 58000 + parseInt(order.id) %></span></div>
+                </div>
+            </div>
             
             <% 
                const hasCoinDiscount = order.items && order.items.some(it => it.title && it.title.includes('Nova Coins Discount'));
@@ -13,48 +26,54 @@
             %>
 
             <% if (!hasCoinDiscount && userCoins > 0 && parseFloat(order.total) > 1) { %>
-                <div id="checkoutRedeemCard" style="background: rgba(0, 255, 102, 0.08); border: 1px dashed rgba(0, 255, 102, 0.4); border-radius: 12px; padding: 14px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <span style="font-size: 1.6rem;">🪙</span>
+                <div id="checkoutRedeemCard" style="background: linear-gradient(90deg, rgba(0, 255, 102, 0.1), rgba(0, 255, 102, 0.02)); border: 1px dashed rgba(0, 255, 102, 0.4); border-radius: 16px; padding: 18px 20px; margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center;">
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <span style="font-size: 1.8rem; filter: drop-shadow(0 0 8px rgba(0,255,102,0.4));">🪙</span>
                         <div>
-                            <strong style="color: #fff; font-size: 0.95rem; display: block;">Redeem Nova Coins</strong>
-                            <small style="color: #94a3b8;">Balance: 🪙 <%= userCoins %> Coins (Save ₹<%= Math.min(userCoins, Math.floor(parseFloat(order.total) - 1)) %>)</small>
+                            <strong style="color: #fff; font-size: 1.05rem; display: block; margin-bottom: 4px;">Redeem Nova Coins</strong>
+                            <small style="color: #94a3b8; font-size: 0.9rem;">Balance: <strong style="color: #00ff66;"><%= userCoins %></strong> Coins (Save ₹<%= Math.min(userCoins, Math.floor(parseFloat(order.total) - 1)) %>)</small>
                         </div>
                     </div>
-                    <button type="button" onclick="applyCoinsToOrder(<%= order.id %>)" class="btn btn-sm" style="background: #00ff66; color: #000; font-weight: 800; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                    <button type="button" onclick="applyCoinsToOrder(<%= order.id %>)" class="btn btn-sm" style="background: #00ff66; color: #000; font-weight: 800; border: none; padding: 10px 20px; border-radius: 10px; cursor: pointer; font-size: 0.95rem; box-shadow: 0 4px 15px rgba(0,255,102,0.3); transition: all 0.3s ease;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(0,255,102,0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(0,255,102,0.3)'">
                         Apply Discount ⚡
                     </button>
                 </div>
             <% } else if (hasCoinDiscount) { %>
-                <div style="background: rgba(0, 255, 102, 0.12); border: 1px solid rgba(0, 255, 102, 0.5); border-radius: 12px; padding: 12px 16px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
-                    <span style="font-size: 1.4rem;">🪙</span>
-                    <span style="color: #00ff66; font-weight: 700; font-size: 0.95rem;">Nova Coins Discount Active! Saved from total.</span>
+                <div style="background: linear-gradient(90deg, rgba(0, 255, 102, 0.15), rgba(0, 255, 102, 0.05)); border: 1px solid rgba(0, 255, 102, 0.5); border-radius: 16px; padding: 16px 20px; margin-bottom: 25px; display: flex; align-items: center; gap: 12px; box-shadow: 0 4px 15px rgba(0,255,102,0.1);">
+                    <span style="font-size: 1.5rem; filter: drop-shadow(0 0 8px rgba(0,255,102,0.5));">🪙</span>
+                    <span style="color: #00ff66; font-weight: 700; font-size: 1.05rem; letter-spacing: 0.5px;">Nova Coins Discount Active! Saved from total.</span>
                 </div>
             <% } %>
 
-            <div class="checkout-items" style="margin-bottom: 20px;">
+            <div class="checkout-items" style="margin-bottom: 30px;">
+                <div style="font-size: 0.85rem; color: #64748b; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 15px; font-weight: 700;">Purchased Items</div>
                 <% order.items.forEach(function(item) { %>
                     <% const priceNum = parseFloat(item.price); %>
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 15px;">
-                        <span style="font-weight: 500; <%= priceNum < 0 ? 'color: #00ff66;' : '' %>"><%= item.title %></span>
-                        <strong style="color: <%= priceNum < 0 ? '#00ff66' : 'var(--primary-neon)' %>;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; background: rgba(255,255,255,0.02); padding: 16px 20px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.05); transition: background 0.3s ease;" onmouseover="this.style.background='rgba(255,255,255,0.04)'" onmouseout="this.style.background='rgba(255,255,255,0.02)'">
+                        <div style="display: flex; align-items: center; gap: 15px;">
+                            <div style="width: 44px; height: 44px; border-radius: 10px; background: <%= priceNum < 0 ? 'rgba(0, 255, 102, 0.1)' : 'rgba(0, 229, 255, 0.1)' %>; border: 1px solid <%= priceNum < 0 ? 'rgba(0, 255, 102, 0.2)' : 'rgba(0, 229, 255, 0.2)' %>; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2));">
+                                <%= priceNum < 0 ? '🪙' : '💎' %>
+                            </div>
+                            <span style="font-weight: 600; font-size: 1.1rem; letter-spacing: 0.5px; <%= priceNum < 0 ? 'color: #00ff66;' : 'color: #e2e8f0;' %>"><%= item.title %></span>
+                        </div>
+                        <strong style="font-size: 1.15rem; letter-spacing: 0.5px; font-family: 'Orbitron', monospace; color: <%= priceNum < 0 ? '#00ff66' : 'var(--primary-neon)' %>;">
                             <%= priceNum < 0 ? `-₹${Math.abs(priceNum).toLocaleString('en-IN')}` : `₹${priceNum.toLocaleString('en-IN')}` %>
                         </strong>
                     </div>
                 <% }); %>
             </div>
             
-            <div class="total-row" style="display: flex; justify-content: space-between; font-size: 1.5rem; font-weight: bold; margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.15); padding-top: 15px;">
-                <span>Total Amount:</span>
-                <span style="color: #00ff66; text-shadow: 0 0 12px rgba(0,255,102,0.6);">₹<%= parseFloat(order.total).toLocaleString('en-IN') %></span>
+            <div class="total-row" style="display: flex; justify-content: space-between; align-items: center; background: linear-gradient(90deg, rgba(0, 229, 255, 0.1), rgba(0, 229, 255, 0.02)); padding: 25px 30px; border-radius: 16px; border: 1px solid rgba(0, 229, 255, 0.3); margin-top: 20px; box-shadow: 0 8px 25px rgba(0,229,255,0.1);">
+                <span style="font-size: 1.1rem; color: #94a3b8; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px;">Total Amount</span>
+                <span style="color: #00e5ff; font-size: 2.2rem; font-weight: 900; font-family: 'Orbitron', monospace; text-shadow: 0 0 20px rgba(0,229,255,0.6); line-height: 1;">₹<%= parseFloat(order.total).toLocaleString('en-IN') %></span>
             </div>
 
             <!-- Nova Coins Cashback Callout -->
-            <div style="margin-top: 20px; background: linear-gradient(135deg, rgba(255, 184, 0, 0.12), rgba(0, 255, 102, 0.08)); border: 1px solid rgba(255, 184, 0, 0.4); border-radius: 12px; padding: 14px; display: flex; align-items: center; gap: 12px;">
-                <span style="font-size: 1.8rem; filter: drop-shadow(0 0 8px rgba(255, 184, 0, 0.6));">🪙</span>
+            <div style="margin-top: 25px; background: linear-gradient(135deg, rgba(255, 184, 0, 0.15), rgba(255, 184, 0, 0.05)); border: 1px solid rgba(255, 184, 0, 0.4); border-radius: 16px; padding: 20px; display: flex; align-items: center; gap: 15px; box-shadow: 0 5px 20px rgba(255,184,0,0.1);">
+                <span style="font-size: 2rem; filter: drop-shadow(0 0 12px rgba(255, 184, 0, 0.8));">🪙</span>
                 <div>
-                    <strong style="color: #ffd700; font-size: 0.95rem; display: block; font-family: 'Rajdhani', sans-serif; letter-spacing: 0.5px;">+125 NOVA COINS CASHBACK</strong>
-                    <span style="color: #cbd5e1; font-size: 0.8rem;">Upon payment confirmation, <strong>125 Nova Coins</strong> will be credited directly to your wallet!</span>
+                    <strong style="color: #ffd700; font-size: 1.05rem; display: block; font-family: 'Rajdhani', sans-serif; letter-spacing: 1px; margin-bottom: 4px; text-shadow: 0 0 10px rgba(255,215,0,0.3);">+125 NOVA COINS CASHBACK</strong>
+                    <span style="color: #cbd5e1; font-size: 0.9rem; line-height: 1.4; display: block;">Upon payment confirmation, <strong>125 Nova Coins</strong> will be credited directly to your wallet!</span>
                 </div>
             </div>
         </div>
@@ -79,25 +98,120 @@
             </div>
             
             <!-- Manual UPI Section (Shown by default) -->
-            <div id="manual-upi-section" style="display: block; margin-top: 10px; text-align: center; border-top: 1px solid var(--glass-border); padding-top: 20px;">
-                <h4 style="margin-bottom: 10px; font-size: 1.1rem; color: var(--text-main);">Scan to Pay via Any UPI App</h4>
+            <div id="manual-upi-section" style="display: block; margin-top: 15px; text-align: center; border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 25px;">
+                <h4 style="margin-bottom: 20px; font-size: 1.2rem; color: var(--text-main); font-weight: 600;">Scan to Pay via Any UPI App</h4>
                 
-                <div style="background: rgba(0, 229, 255, 0.08); border: 1px solid rgba(0, 229, 255, 0.3); border-radius: 10px; padding: 10px; margin-bottom: 15px; display: inline-block; min-width: 250px;">
-                    <div style="font-size: 0.85rem; color: #94a3b8;">Payable Amount:</div>
-                    <div style="font-size: 1.8rem; font-weight: 900; color: #00e5ff; font-family: 'Orbitron', monospace;">₹<%= parseFloat(order.total).toLocaleString('en-IN') %></div>
+                <div style="background: linear-gradient(145deg, rgba(0, 229, 255, 0.12), rgba(0, 102, 255, 0.05)); border: 1px solid rgba(0, 229, 255, 0.4); border-radius: 16px; padding: 25px 20px; margin-bottom: 30px; display: inline-block; min-width: 280px; box-shadow: 0 8px 32px rgba(0, 229, 255, 0.15); backdrop-filter: blur(10px);">
+                    <div style="font-size: 0.95rem; font-weight: 600; color: #94a3b8; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 8px;">AMOUNT TO PAY</div>
+                    <div style="font-size: 2.8rem; font-weight: 900; color: #00e5ff; font-family: 'Orbitron', monospace; text-shadow: 0 0 15px rgba(0, 229, 255, 0.5); line-height: 1;">₹<%= parseFloat(order.total).toLocaleString('en-IN') %></div>
+                    
+                    <div style="margin-top: 15px; display: flex; align-items: center; justify-content: center; gap: 8px; background: rgba(255, 51, 102, 0.1); border-radius: 30px; padding: 8px 18px; border: 1px solid rgba(255, 51, 102, 0.25);">
+                        <span style="color: #ff3366; font-size: 1.1rem; line-height: 1;">⏳</span>
+                        <span style="font-size: 0.95rem; color: #e2e8f0;">Complete payment in <strong id="payment-timer" style="color: #ff3366; font-family: monospace; font-size: 1.1rem; font-weight: 700; letter-spacing: 1px;">14:59</strong></span>
+                    </div>
                 </div>
 
-                <div style="background: transparent; display: block; margin-bottom: 15px;">
-                    <img src="/images/upi-qr.jpg" alt="UPI QR Code" style="width: 250px; border-radius: 15px; box-shadow: 0 0 20px rgba(0, 229, 255, 0.2); border: 2px solid var(--primary-neon);">
+                <% 
+                   const upiId = "Q389880684@ybl";
+                   const upiName = "PlayNova Digital";
+                   const orderAmount = parseFloat(order.total);
+                   const displayedOrderId = 58000 + parseInt(order.id);
+                   const upiString = `upi://pay?pa=${upiId}&pn=${encodeURIComponent(upiName)}&am=${orderAmount}&cu=INR&tn=${encodeURIComponent('Order #' + displayedOrderId)}`;
+                   const dynamicQrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encodeURIComponent(upiString)}`;
+                %>
+                <div style="background: transparent; display: block; margin-bottom: 25px;">
+                    <img src="<%= dynamicQrUrl %>" alt="Dynamic UPI QR Code" style="width: 312px; border-radius: 16px; box-shadow: 0 12px 30px rgba(0, 229, 255, 0.25); border: 3px solid var(--primary-neon); padding: 6px; background: #fff; transition: transform 0.3s ease;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
+                    <div style="margin-top: 25px; padding: 18px 25px; background: linear-gradient(145deg, rgba(0, 229, 255, 0.08), rgba(0, 102, 255, 0.02)); border: 1px solid rgba(0, 229, 255, 0.3); border-radius: 16px; display: inline-flex; align-items: center; justify-content: space-between; gap: 20px; width: 100%; max-width: 320px; text-align: left; box-shadow: 0 8px 25px rgba(0, 229, 255, 0.08); backdrop-filter: blur(10px);">
+                        <div>
+                            <span style="color: #94a3b8; font-size: 0.8rem; display: block; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 700;">UPI ID</span>
+                            <strong style="color: #fff; font-size: 1.25rem; letter-spacing: 0.5px; font-family: monospace;">Q389880684@ybl</strong>
+                            <div style="color: var(--primary-neon); font-size: 0.95rem; margin-top: 5px; font-weight: 600;">PlayNova Digital</div>
+                        </div>
+                        <button onclick="copyUpiId()" style="background: rgba(0, 229, 255, 0.15); border: 1px solid rgba(0, 229, 255, 0.4); color: #00e5ff; width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s ease; flex-shrink: 0;" onmouseover="this.style.background='rgba(0, 229, 255, 0.3)'; this.style.transform='scale(1.05)'" onmouseout="this.style.background='rgba(0, 229, 255, 0.15)'; this.style.transform='scale(1)'" title="Copy UPI ID">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                        </button>
+                    </div>
                 </div>
-                <p style="font-size: 0.9rem; color: var(--text-dim); margin-bottom: 15px;">After payment, send your screenshot to the admin on Telegram.</p>
                 
-                <a href="https://t.me/premiumffzone" 
-                   target="_blank" class="btn-primary" style="display: block; width: 100%; text-decoration: none; margin-bottom: 10px; background: #0088cc; border: none; font-size: 1.05rem; padding: 12px;">
-                    Send Screenshot to Admin ✅
-                </a>
+                <!-- Trust Card -->
+                <div style="background: linear-gradient(145deg, rgba(20, 25, 35, 0.8), rgba(15, 20, 28, 0.95)); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px; padding: 20px; margin-bottom: 25px; box-shadow: 0 8px 25px rgba(0,0,0,0.3); backdrop-filter: blur(10px);">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; text-align: left;">
+                        <div style="display: flex; align-items: center; gap: 12px; background: rgba(255,255,255,0.02); padding: 10px 15px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.03);">
+                            <span style="font-size: 1.3rem; filter: drop-shadow(0 0 5px rgba(0, 255, 102, 0.4));">🔒</span>
+                            <span style="color: #e2e8f0; font-size: 0.9rem; font-weight: 600; letter-spacing: 0.5px;">Secure Payment</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 12px; background: rgba(255,255,255,0.02); padding: 10px 15px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.03);">
+                            <span style="font-size: 1.3rem; filter: drop-shadow(0 0 5px rgba(255, 215, 0, 0.4));">⚡</span>
+                            <span style="color: #e2e8f0; font-size: 0.9rem; font-weight: 600; letter-spacing: 0.5px;">Instant Delivery</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 12px; background: rgba(255,255,255,0.02); padding: 10px 15px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.03);">
+                            <span style="font-size: 1.3rem; filter: drop-shadow(0 0 5px rgba(0, 229, 255, 0.4));">🛡</span>
+                            <span style="color: #e2e8f0; font-size: 0.9rem; font-weight: 600; letter-spacing: 0.5px;">Verified Merchant</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 12px; background: rgba(255,255,255,0.02); padding: 10px 15px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.03);">
+                            <span style="font-size: 1.3rem; filter: drop-shadow(0 0 5px rgba(255, 51, 102, 0.4));">💬</span>
+                            <span style="color: #e2e8f0; font-size: 0.9rem; font-weight: 600; letter-spacing: 0.5px;">24×7 Support</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Verification Section -->
+                <div style="background: rgba(255, 255, 255, 0.02); border-radius: 16px; padding: 25px; margin-bottom: 25px; border: 1px solid rgba(255, 255, 255, 0.05); text-align: left;">
+                    <h5 style="color: #fff; font-size: 1.1rem; margin-bottom: 12px; font-weight: 600; display: flex; align-items: center; gap: 8px;">
+                        <span style="color: #00e5ff;">✓</span> Payment Verification
+                    </h5>
+                    <p style="font-size: 0.9rem; color: #94a3b8; margin-bottom: 20px;">Provide your transaction details for faster order processing.</p>
+                    
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; color: #cbd5e1; font-size: 0.85rem; margin-bottom: 8px; font-weight: 500; letter-spacing: 0.5px;">Transaction ID (12-Digit UTR)</label>
+                        <input type="text" placeholder="e.g. 312345678901" style="width: 100%; padding: 14px 16px; background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #fff; font-size: 1rem; font-family: monospace; outline: none; transition: all 0.3s;" onfocus="this.style.borderColor='#00e5ff'; this.style.boxShadow='0 0 10px rgba(0,229,255,0.1)'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'; this.style.boxShadow='none'">
+                    </div>
+
+                    <div style="margin-bottom: 25px;">
+                        <label style="display: block; color: #cbd5e1; font-size: 0.85rem; margin-bottom: 8px; font-weight: 500; letter-spacing: 0.5px;">Payment Screenshot</label>
+                        <div style="width: 100%; padding: 16px; background: rgba(0,0,0,0.25); border: 1px dashed rgba(255,255,255,0.2); border-radius: 10px; text-align: center; cursor: pointer; transition: all 0.3s;" onmouseover="this.style.borderColor='#00e5ff'; this.style.background='rgba(0,229,255,0.05)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.2)'; this.style.background='rgba(0,0,0,0.25)'" onclick="document.getElementById('payment-screenshot').click()">
+                            <input type="file" id="payment-screenshot" accept="image/*" style="display: none;">
+                            <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
+                                <span style="font-size: 1.8rem; filter: drop-shadow(0 0 5px rgba(0,229,255,0.3));">📸</span>
+                                <span style="color: #00e5ff; font-size: 0.95rem; font-weight: 500;">Click to upload screenshot</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <style>
+                        @keyframes submitGlow {
+                            0% { box-shadow: 0 0 15px rgba(0, 102, 255, 0.4); }
+                            50% { box-shadow: 0 0 30px rgba(0, 210, 255, 0.8); }
+                            100% { box-shadow: 0 0 15px rgba(0, 102, 255, 0.4); }
+                        }
+                        .btn-submit-payment {
+                            display: flex; align-items: center; justify-content: center; gap: 12px; width: 100%; text-decoration: none;
+                            background: linear-gradient(135deg, #0055ff, #00aaff);
+                            border: 1px solid rgba(0, 229, 255, 0.4);
+                            color: #fff; font-size: 1.15rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;
+                            padding: 18px; border-radius: 16px; 
+                            transition: all 0.3s ease;
+                            animation: submitGlow 3s infinite;
+                        }
+                        .btn-submit-payment:hover {
+                            background: linear-gradient(135deg, #0066ff, #00d2ff);
+                            transform: translateY(-3px) scale(1.01);
+                            border-color: rgba(0, 229, 255, 0.8);
+                        }
+                        .btn-submit-payment svg {
+                            transition: transform 0.3s ease;
+                        }
+                        .btn-submit-payment:hover svg {
+                            transform: translateX(6px);
+                        }
+                    </style>
+                    <a href="https://t.me/premiumffzone" target="_blank" class="btn-submit-payment" onclick="showPaymentPopup()">
+                        <span>Submit Payment</span>
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+                    </a>
+                </div>
                 
-                <a href="/orders" class="btn-secondary" style="display: block; width: 100%; text-decoration: none; border: 1px solid var(--glass-border);">Go to My Orders 🛒</a>
+                <a href="/orders" class="btn-secondary" style="display: block; width: 100%; text-decoration: none; border: 1px solid rgba(255, 255, 255, 0.15); padding: 16px; font-size: 1.05rem; border-radius: 12px; font-weight: 500; color: #cbd5e1; background: rgba(255, 255, 255, 0.02); transition: background 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='rgba(255,255,255,0.02)'">Go to My Orders 🛒</a>
             </div>
         </div>
     </div>
@@ -108,6 +222,63 @@
     @media (max-width: 768px) {
         .checkout-grid {
             grid-template-columns: 1fr !important;
+            gap: 20px !important;
+        }
+        
+        .payment-actions {
+            padding: 20px 15px !important;
+        }
+
+        #manual-upi-section {
+            padding-top: 15px !important;
+            overflow-x: hidden;
+        }
+        
+        /* Make QR code responsive and bigger on mobile */
+        #manual-upi-section img[alt="Dynamic UPI QR Code"] {
+            width: 100% !important;
+            max-width: 320px !important;
+            height: auto !important;
+        }
+        
+        /* Amount to pay container and text */
+        #manual-upi-section > div:nth-of-type(1) {
+            min-width: 100% !important;
+            padding: 20px 15px !important;
+            box-sizing: border-box;
+        }
+        #manual-upi-section > div:nth-of-type(1) div:nth-child(2) {
+            font-size: 2.3rem !important; /* Smaller text for mobile */
+        }
+        
+        /* UPI details flex container */
+        #manual-upi-section > div:nth-of-type(2) > div {
+            max-width: 100% !important;
+            padding: 15px !important;
+            gap: 10px !important;
+            box-sizing: border-box;
+        }
+        
+        /* Trust card grid */
+        #manual-upi-section > div:nth-of-type(3) > div {
+            grid-template-columns: 1fr !important; /* Stack vertically */
+            gap: 10px !important;
+        }
+        
+        /* Verification section */
+        #manual-upi-section > div:nth-of-type(4) {
+            padding: 20px 15px !important;
+            box-sizing: border-box;
+        }
+        
+        .btn-submit-payment {
+            padding: 16px !important;
+            font-size: 1.05rem !important;
+        }
+        
+        .btn-secondary {
+            padding: 16px !important;
+            font-size: 1rem !important;
         }
     }
 </style>
@@ -169,5 +340,76 @@ async function applyCoinsToOrder(orderId) {
             confirmButtonColor: '#00e5ff'
         });
     }
+}
+</script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const timeInSeconds = 14 * 60 + 59;
+    const display = document.querySelector('#payment-timer');
+    
+    if (display) {
+        let timer = timeInSeconds, minutes, seconds;
+        let interval = setInterval(function () {
+            minutes = parseInt(timer / 60, 10);
+            seconds = parseInt(timer % 60, 10);
+
+            minutes = minutes < 10 ? "0" + minutes : minutes;
+            seconds = seconds < 10 ? "0" + seconds : seconds;
+
+            display.textContent = minutes + ":" + seconds;
+
+            if (--timer < 0) {
+                clearInterval(interval);
+                display.textContent = "00:00";
+            }
+        }, 1000);
+    }
+});
+
+function copyUpiId() {
+    navigator.clipboard.writeText('Q389880684@ybl').then(() => {
+        Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'success',
+            title: 'UPI ID Copied Successfully',
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true,
+            background: '#141a29',
+            color: '#fff',
+            iconColor: '#00e5ff'
+        });
+    }).catch(err => {
+        console.error('Could not copy text: ', err);
+    });
+}
+
+function showPaymentPopup() {
+    Swal.fire({
+        title: 'Payment Submitted',
+        html: `
+            <div style="margin-top: 10px;">
+                <p style="color: #cbd5e1; font-size: 1.05rem; margin-bottom: 25px; line-height: 1.5;">Your payment has been received.<br>Verification usually takes 2–10 minutes.</p>
+                <div style="background: rgba(255, 184, 0, 0.1); border: 1px solid rgba(255, 184, 0, 0.3); border-radius: 12px; padding: 15px 25px; display: inline-block; box-shadow: 0 4px 15px rgba(255,184,0,0.1);">
+                    <span style="color: #ffd700; font-weight: 700; font-size: 1.15rem; letter-spacing: 1px; display: flex; align-items: center; justify-content: center; gap: 10px;">
+                        <span style="font-size: 1.3rem;">⏳</span> Pending Verification
+                    </span>
+                </div>
+            </div>
+        `,
+        icon: 'success',
+        iconColor: '#00e5ff',
+        background: '#141a29',
+        color: '#fff',
+        confirmButtonText: 'Close',
+        confirmButtonColor: '#00e5ff',
+        customClass: {
+            title: 'swal-premium-title',
+            popup: 'swal-premium-popup'
+        },
+        padding: '2em'
+    });
 }
 </script>
