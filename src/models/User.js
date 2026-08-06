@@ -31,6 +31,31 @@ const User = {
         return result.rows[0];
     },
 
+    // Create user from already hashed password (for OTP flow)
+    async createVerified(name, email, passwordHash, role = 'user') {
+        const userCode = `PN-${Math.floor(500000 + Math.random() * 490000)}`;
+        const query = `
+            INSERT INTO users (name, email, password, role, is_vip, nova_coins, user_code)
+            VALUES ($1, $2, $3, $4, FALSE, 0, $5)
+            RETURNING id, name, email, role, is_vip, nova_coins, user_code, created_at
+        `;
+        const result = await pool.query(query, [name, email, passwordHash, role, userCode]);
+        return result.rows[0];
+    },
+
+    // Create user from OAuth (Google Auth)
+    async createFromOAuth(name, email, role = 'user') {
+        const dummyPasswordHash = await bcrypt.hash(Math.random().toString(36).slice(-10), 10);
+        const userCode = `PN-${Math.floor(500000 + Math.random() * 490000)}`;
+        const query = `
+            INSERT INTO users (name, email, password, role, is_vip, nova_coins, user_code)
+            VALUES ($1, $2, $3, $4, FALSE, 0, $5)
+            RETURNING id, name, email, role, is_vip, nova_coins, user_code, created_at
+        `;
+        const result = await pool.query(query, [name, email, dummyPasswordHash, role, userCode]);
+        return result.rows[0];
+    },
+
     // Find user by email
     async findByEmail(email) {
         const query = 'SELECT * FROM users WHERE email = $1';

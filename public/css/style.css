@@ -40,6 +40,16 @@ body::before {
     pointer-events: none;
 }
 
+img, picture, video, canvas, svg {
+    max-width: 100%;
+    height: auto;
+}
+
+main {
+    padding-top: 85px;
+    min-height: calc(100vh - 85px);
+}
+
 /* Base Layout */
 .container {
     max-width: 1200px;
@@ -52,7 +62,7 @@ section {
 }
 
 .section-title {
-    font-size: 2.5rem;
+    font-size: clamp(2rem, 5vw, 2.8rem);
     text-align: center;
     margin-bottom: 50px;
     letter-spacing: 2px;
@@ -125,10 +135,11 @@ header nav {
 }
 
 .logo {
-    font-size: 1.8rem;
+    font-size: clamp(1.4rem, 4vw, 1.8rem);
     font-weight: 800;
     letter-spacing: 1px;
-    color: #ffffff;
+    color: #fff;
+    text-decoration: none;
 }
 
 .nav-links {
@@ -508,7 +519,7 @@ header nav {
 
 /* Hero Section */
 .hero {
-    height: 100vh;
+    min-height: calc(100vh - 85px);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -527,7 +538,7 @@ header nav {
 }
 
 .hero h1 {
-    font-size: 5rem;
+    font-size: clamp(2.5rem, 8vw, 5rem);
     margin-bottom: 20px;
     font-family: 'Orbitron', sans-serif;
     background: linear-gradient(to bottom, #fff, #999);
@@ -1134,8 +1145,9 @@ select option {
     border: 1px solid rgba(255, 255, 255, 0.05);
     border-radius: 20px;
     padding: 30px;
-    width: 380px;
-    min-width: 380px;
+    width: 100%;
+    max-width: 380px;
+    min-width: min(380px, 85vw);
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -1682,6 +1694,7 @@ footer {
     font-size: 1.1rem;
     color: var(--text-dim);
     font-weight: 600;
+    flex-wrap: wrap;
 }
 
 .product-desc-block {
@@ -1770,12 +1783,13 @@ footer {
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     line-height: 1.1;
-    font-family: 'Orbitron', sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
 .product-cta-buttons {
     display: flex;
     gap: 15px;
+    flex-wrap: wrap;
 }
 
 .buy-btn {
@@ -2552,6 +2566,7 @@ footer {
     top: calc(100% + 14px);
     right: 0;
     width: 310px;
+    max-width: calc(100vw - 32px);
     background: rgba(11, 14, 20, 0.98);
     backdrop-filter: blur(24px);
     -webkit-backdrop-filter: blur(24px);
@@ -3497,7 +3512,7 @@ footer {
 }
 
 .vip-price-tag {
-    font-family: 'Orbitron', monospace, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     font-size: 1.7rem;
     font-weight: 900;
     color: #ffb800;

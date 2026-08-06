@@ -41,6 +41,11 @@ app.use(session({
     }
 }));
 
+// Initialize Passport
+const passport = require('./src/config/passport');
+app.use(passport.initialize());
+app.use(passport.session());
+
 // Flash Messages
 app.use(flash());
 
@@ -64,6 +69,13 @@ const adminRoutes = require('./src/routes/admin');
 const paymentRoutes = require('./src/routes/payment');
 
 const TopupPackage = require('./src/models/TopupPackage');
+const { isAuthenticated } = require('./src/middleware/auth');
+
+// Auth Routes (Must be before the global gatekeeper)
+app.use('/', authRoutes);
+
+// GLOBAL GATEKEEPER: Ensure users are logged in for all following routes
+app.use(isAuthenticated);
 
 // Backend Proxy for UID Verification (To avoid Mixed Content HTTPS/HTTP errors)
 app.get('/api/verify-uid/:uid', async (req, res) => {
@@ -190,7 +202,6 @@ app.get('/topup', async (req, res) => {
 });
 
 app.use('/', indexRoutes);
-app.use('/', authRoutes);
 app.use('/products', productRoutes);
 app.use('/cart', cartRoutes);
 app.use('/orders', orderRoutes);

@@ -1,0 +1,318 @@
+<style>
+    body {
+        background-color: #121822 !important;
+    }
+    .auth-section {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 40px 20px;
+    }
+    .marco-card {
+        background: #1c232d;
+        border-radius: 16px;
+        padding: 40px 30px;
+        width: 100%;
+        max-width: 420px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+    .marco-logo {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+    .marco-logo img {
+        height: 40px;
+        width: auto;
+        mix-blend-mode: lighten;
+    }
+    .marco-submit {
+        background: #2185ff;
+        color: #fff;
+        border: none;
+        width: 100%;
+        padding: 14px;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        transition: background 0.3s;
+        margin-top: 10px;
+    }
+    .marco-submit:hover {
+        background: #186adc;
+    }
+    .otp-container {
+        display: flex;
+        gap: 12px;
+        justify-content: center;
+        margin: 30px 0;
+    }
+
+    .otp-input {
+        width: 50px;
+        height: 60px;
+        font-size: 1.8rem;
+        text-align: center;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(0, 229, 255, 0.2);
+        border-radius: 12px;
+        color: #fff;
+        transition: all 0.3s ease;
+        font-weight: bold;
+    }
+
+    .otp-input:focus {
+        outline: none;
+        border-color: #00e5ff;
+        box-shadow: 0 0 15px rgba(0, 229, 255, 0.3);
+        background: rgba(0, 229, 255, 0.1);
+    }
+
+    .otp-input::-webkit-outer-spin-button,
+    .otp-input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    .otp-input[type=number] {
+        -moz-appearance: textfield;
+    }
+
+    .resend-container {
+        text-align: center;
+        margin-top: 20px;
+        font-size: 0.95rem;
+        color: var(--text-dim);
+    }
+
+    .resend-btn {
+        background: none;
+        border: none;
+        color: #00e5ff;
+        font-weight: 700;
+        cursor: pointer;
+        padding: 0;
+        text-decoration: underline;
+    }
+
+    .resend-btn:disabled {
+        color: #666;
+        cursor: not-allowed;
+        text-decoration: none;
+    }
+
+    .loading-spinner {
+        display: none;
+        width: 20px;
+        height: 20px;
+        border: 3px solid rgba(255,255,255,0.3);
+        border-radius: 50%;
+        border-top-color: #fff;
+        animation: spin 1s ease-in-out infinite;
+        margin-right: 10px;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+</style>
+
+<section class="auth-section">
+    <div class="marco-card">
+        <div class="marco-logo">
+            <a href="/">
+                <img src="/images/playnova-logo.png" alt="PlayNova">
+            </a>
+        </div>
+        
+        <h2 style="text-align: center; font-size: 1.5rem; margin-bottom: 10px;">Verify Your <span style="color: #2185ff;">Email</span></h2>
+        <p style="text-align: center; color: #7a8b9c; font-size: 0.9rem; margin-bottom: 25px;">We've sent a 6-digit code to <strong style="color:#fff;"><%= email %></strong></p>
+
+        <form id="otpForm">
+            <input type="hidden" id="email" name="email" value="<%= email %>">
+                
+                <div class="otp-container">
+                    <input type="number" class="otp-input" maxlength="1" pattern="[0-9]" inputmode="numeric" required autofocus>
+                    <input type="number" class="otp-input" maxlength="1" pattern="[0-9]" inputmode="numeric" required>
+                    <input type="number" class="otp-input" maxlength="1" pattern="[0-9]" inputmode="numeric" required>
+                    <input type="number" class="otp-input" maxlength="1" pattern="[0-9]" inputmode="numeric" required>
+                    <input type="number" class="otp-input" maxlength="1" pattern="[0-9]" inputmode="numeric" required>
+                    <input type="number" class="otp-input" maxlength="1" pattern="[0-9]" inputmode="numeric" required>
+                </div>
+            
+            <button type="submit" id="verifyBtn" class="marco-submit">
+                <span class="loading-spinner" id="verifySpinner"></span>
+                VERIFY ACCOUNT
+            </button>
+        </form>
+
+        <div class="resend-container">
+            <p id="timerText">Resend code in <span id="countdown">60</span>s</p>
+            <button type="button" id="resendBtn" class="resend-btn" style="display: none;">Resend OTP</button>
+        </div>
+
+        <p style="text-align: center; margin-top: 20px; font-size: 0.85rem; color: #7a8b9c;">
+            Incorrect email? <a href="/register" style="color: #2185ff; text-decoration: none; font-weight: 600;">Change Email</a>
+        </p>
+    </div>
+</section>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const inputs = document.querySelectorAll('.otp-input');
+    const form = document.getElementById('otpForm');
+    const verifyBtn = document.getElementById('verifyBtn');
+    const verifySpinner = document.getElementById('verifySpinner');
+    const email = document.getElementById('email').value;
+
+    const resendBtn = document.getElementById('resendBtn');
+    const timerText = document.getElementById('timerText');
+    const countdownSpan = document.getElementById('countdown');
+
+    // OTP Input Logic
+    inputs.forEach((input, index) => {
+        // Enforce 1 character
+        input.addEventListener('input', function() {
+            if (this.value.length > 1) {
+                this.value = this.value.slice(0, 1);
+            }
+            if (this.value !== '' && index < inputs.length - 1) {
+                inputs[index + 1].focus();
+            }
+        });
+
+        // Handle Backspace
+        input.addEventListener('keydown', function(e) {
+            if (e.key === 'Backspace' && this.value === '' && index > 0) {
+                inputs[index - 1].focus();
+                inputs[index - 1].value = ''; // Optional: clear previous box
+            }
+        });
+
+        // Paste support
+        input.addEventListener('paste', function(e) {
+            e.preventDefault();
+            const pastedData = e.clipboardData.getData('text').slice(0, inputs.length).replace(/[^0-9]/g, '');
+            for (let i = 0; i < pastedData.length; i++) {
+                if (inputs[index + i]) {
+                    inputs[index + i].value = pastedData[i];
+                    if (index + i < inputs.length - 1) {
+                        inputs[index + i + 1].focus();
+                    }
+                }
+            }
+        });
+    });
+
+    // Verification Logic (AJAX)
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        let otpCode = '';
+        inputs.forEach(input => otpCode += input.value);
+
+        if (otpCode.length !== 6) {
+            Swal.fire('Error', 'Please enter all 6 digits', 'error');
+            return;
+        }
+
+        // Loading State
+        verifyBtn.disabled = true;
+        verifySpinner.style.display = 'block';
+
+        try {
+            const response = await fetch('/verify-otp', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, otp: otpCode })
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                Swal.fire({
+                    title: 'Verified!',
+                    text: data.message,
+                    icon: 'success',
+                    timer: 2000,
+                    showConfirmButton: false
+                }).then(() => {
+                    window.location.href = data.redirect || '/';
+                });
+            } else {
+                Swal.fire('Error', data.message, 'error');
+                inputs.forEach(input => input.value = '');
+                inputs[0].focus();
+            }
+        } catch (err) {
+            Swal.fire('Error', 'Something went wrong. Try again.', 'error');
+        } finally {
+            verifyBtn.disabled = false;
+            verifySpinner.style.display = 'none';
+        }
+    });
+
+    // Countdown Timer Logic
+    let timeLeft = 60;
+    let timerId;
+
+    const startTimer = () => {
+        timeLeft = 60;
+        resendBtn.style.display = 'none';
+        timerText.style.display = 'block';
+        countdownSpan.innerText = timeLeft;
+
+        timerId = setInterval(() => {
+            timeLeft--;
+            countdownSpan.innerText = timeLeft;
+            if (timeLeft <= 0) {
+                clearInterval(timerId);
+                timerText.style.display = 'none';
+                resendBtn.style.display = 'inline-block';
+            }
+        }, 1000);
+    };
+
+    startTimer();
+
+    // Resend OTP Logic
+    resendBtn.addEventListener('click', async () => {
+        resendBtn.disabled = true;
+        resendBtn.innerText = 'Sending...';
+
+        try {
+            const response = await fetch('/resend-otp', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email })
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: 'success',
+                    title: 'New OTP sent to your email!',
+                    showConfirmButton: false,
+                    timer: 3000
+                });
+                startTimer();
+            } else {
+                Swal.fire('Error', data.message, 'error');
+            }
+        } catch (err) {
+            Swal.fire('Error', 'Failed to resend OTP', 'error');
+        } finally {
+            resendBtn.disabled = false;
+            resendBtn.innerText = 'Resend OTP';
+        }
+    });
+});
+</script>

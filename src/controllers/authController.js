@@ -1,4 +1,7 @@
 const User = require('../models/User');
+const Otp = require('../models/Otp');
+const bcrypt = require('bcryptjs');
+const { sendOtpEmail } = require('../utils/email');
 
 const authController = {
     // Show register page
@@ -17,7 +20,7 @@ const authController = {
         });
     },
 
-    // Handle registration
+    // Handle registration (Send OTP)
     register: async (req, res) => {
         try {
             const { name, email, password, confirmPassword } = req.body;
@@ -45,8 +48,83 @@ const authController = {
                 return res.redirect('/register');
             }
 
-            // Create user
-            const user = await User.create(name, email, password);
+            // Generate 6-digit OTP
+            const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+            const otpHash = await bcrypt.hash(otpCode, 10);
+            const passwordHash = await bcrypt.hash(password, 10);
+
+            // Store in DB
+            await Otp.upsert(email, name, passwordHash, otpHash);
+
+            // Send Email
+            const emailSent = await sendOtpEmail(email, otpCode);
+            if (!emailSent) {
+                req.flash('error', 'Failed to send verification email. Please try again.');
+                return res.redirect('/register');
+            }
+
+            // Redirect to verify page
+            res.redirect(`/verify-otp?email=${encodeURIComponent(email)}`);
+
+        } catch (error) {
+            console.error('Registration error:', error);
+            req.flash('error', 'Registration failed. Please try again.');
+            res.redirect('/register');
+        }
+    },
+
+    // Show OTP Verification Page
+    showVerifyOtp: (req, res) => {
+        const email = req.query.email;
+        if (!email) {
+            return res.redirect('/register');
+        }
+        res.render('pages/verify-otp', {
+            title: 'Verify OTP - PlayNova',
+            layout: 'layouts/main',
+            email: email
+        });
+    },
+
+    // Handle OTP Submission (AJAX)
+    verifyOtp: async (req, res) => {
+        try {
+            const { email, otp } = req.body;
+            
+            if (!email || !otp) {
+                return res.status(400).json({ success: false, message: 'Email and OTP are required' });
+            }
+
+            const otpRecord = await Otp.findByEmail(email);
+            
+            if (!otpRecord) {
+                return res.status(400).json({ success: false, message: 'OTP Expired or Not Found. Request a new one.' });
+            }
+
+            // Check if expired
+            if (new Date() > new Date(otpRecord.expires_at)) {
+                await Otp.deleteByEmail(email);
+                return res.status(400).json({ success: false, message: 'OTP Expired. Request a new one.' });
+            }
+
+            // Check attempts
+            if (otpRecord.attempts >= 5) {
+                await Otp.deleteByEmail(email);
+                return res.status(400).json({ success: false, message: 'Too many failed attempts. Request a new OTP.' });
+            }
+
+            // Verify hash
+            const isValid = await bcrypt.compare(otp.toString(), otpRecord.otp_hash);
+            if (!isValid) {
+                await Otp.incrementAttempts(email);
+                return res.status(400).json({ success: false, message: 'Invalid OTP' });
+            }
+
+            // Success! Create user manually
+            const user = await User.createVerified(otpRecord.name, otpRecord.email, otpRecord.password_hash);
+
+            // Clean up OTP
+            await Otp.deleteByEmail(email);
 
             // Auto-login
             req.session.user = {
@@ -59,13 +137,39 @@ const authController = {
                 user_code: user.user_code
             };
 
-            req.flash('success', 'Registration successful! Welcome to PlayNova');
-            res.redirect('/');
+            return res.json({ success: true, message: 'Verification successful! Redirecting...', redirect: '/' });
 
         } catch (error) {
-            console.error('Registration error:', error);
-            req.flash('error', 'Registration failed. Please try again.');
-            res.redirect('/register');
+            console.error('OTP Verification Error:', error);
+            return res.status(500).json({ success: false, message: 'Server error during verification.' });
+        }
+    },
+
+    // Handle Resend OTP (AJAX)
+    resendOtp: async (req, res) => {
+        try {
+            const { email } = req.body;
+            if (!email) return res.status(400).json({ success: false, message: 'Email required' });
+
+            const otpRecord = await Otp.findByEmail(email);
+            if (!otpRecord) return res.status(400).json({ success: false, message: 'Registration not found. Please register again.' });
+
+            // Generate new OTP
+            const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+            const otpHash = await bcrypt.hash(otpCode, 10);
+            
+            await Otp.upsert(otpRecord.email, otpRecord.name, otpRecord.password_hash, otpHash);
+
+            const emailSent = await sendOtpEmail(email, otpCode);
+            if (!emailSent) {
+                return res.status(500).json({ success: false, message: 'Failed to send OTP.' });
+            }
+
+            return res.json({ success: true, message: 'A new OTP has been sent to your email.' });
+
+        } catch (error) {
+            console.error('Resend OTP Error:', error);
+            return res.status(500).json({ success: false, message: 'Server error during resend.' });
         }
     },
 
