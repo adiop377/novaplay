@@ -232,8 +232,9 @@ app.use((err, req, res, next) => {
 // Start Server (only if not running in Vercel)
 if (process.env.NODE_ENV !== 'production') {
     const PORT = process.env.PORT || 3000;
-    server.listen(PORT, () => {
+    server.listen(PORT, '0.0.0.0', () => {
         console.log(`🚀 PlayNova running at http://localhost:${PORT}`);
+        console.log(`📱 Network access (for phone): http://192.168.1.6:${PORT}`);
     });
 }
 
