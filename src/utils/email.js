@@ -11,8 +11,11 @@ const transporter = nodemailer.createTransport({
 });
 
 const sendOtpEmail = async (email, otp) => {
+    const fromEmail = process.env.SMTP_FROM || process.env.SMTP_USER;
+    const fromString = fromEmail.includes('<') ? fromEmail : `PlayNova <${fromEmail}>`;
+
     const mailOptions = {
-        from: `PlayNova <${process.env.SMTP_FROM || process.env.SMTP_USER}>`,
+        from: fromString,
         to: email,
         subject: 'Verify your PlayNova Account',
         text: `Use this code to verify your email:\n\n${otp}\n\nExpires in 15 minutes. If you did not sign up, you can ignore this email.`,
