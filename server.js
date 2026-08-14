@@ -222,27 +222,25 @@ app.use((err, req, res, next) => {
     });
 });
 
-// Start Server (only if not running in Vercel)
-if (process.env.NODE_ENV !== 'production') {
-    const PORT = process.env.PORT || 3000;
-    server.listen(PORT, '0.0.0.0', () => {
-        console.log(`🚀 PlayNova running at http://localhost:${PORT}`);
-        
-        // Dynamically get the local IP address
-        const { networkInterfaces } = require('os');
-        const nets = networkInterfaces();
-        let localIp = '127.0.0.1';
-        for (const name of Object.keys(nets)) {
-            for (const net of nets[name]) {
-                if (net.family === 'IPv4' && !net.internal) {
-                    localIp = net.address;
-                }
+// Start Server
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, '0.0.0.0', () => {
+    console.log(`🚀 PlayNova running on port ${PORT}`);
+    
+    // Dynamically get the local IP address
+    const { networkInterfaces } = require('os');
+    const nets = networkInterfaces();
+    let localIp = '127.0.0.1';
+    for (const name of Object.keys(nets)) {
+        for (const net of nets[name]) {
+            if (net.family === 'IPv4' && !net.internal) {
+                localIp = net.address;
             }
         }
-        
-        console.log(`📱 Network access (for phone): http://${localIp}:${PORT}`);
-    });
-}
+    }
+    
+    console.log(`📱 Network access (for phone): http://${localIp}:${PORT}`);
+});
 
 // Export for Vercel Serverless
 module.exports = server;
