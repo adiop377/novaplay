@@ -664,11 +664,16 @@ const adminController = {
     // Get Live Stats for Dashboard API
     getLiveStats: async (req, res) => {
         try {
-            // Simulated live data
-            const activeVisitors = Math.floor(Math.random() * (45 - 15 + 1) + 15);
-            const onlineUsers = Math.floor(activeVisitors * 0.4);
+            const pool = require('../config/db');
+
+            // Fetch actual live data from session table
+            const activeVisitorsRes = await pool.query('SELECT COUNT(*) FROM session WHERE expire > NOW()');
+            const onlineUsersRes = await pool.query("SELECT COUNT(*) FROM session WHERE expire > NOW() AND sess::text LIKE '%\"user\":%'");
             
-            // Randomly generate 1-3 live activity events
+            const activeVisitors = parseInt(activeVisitorsRes.rows[0].count) || 0;
+            const onlineUsers = parseInt(onlineUsersRes.rows[0].count) || 0;
+            
+            // Randomly generate 1-3 live activity events (Keep simulated since we don't have an activity tracker yet)
             const activities = [];
             const actions = ['viewed product', 'added to cart', 'initiated checkout', 'logged in', 'searched'];
             for(let i=0; i<Math.floor(Math.random() * 3) + 1; i++) {
@@ -680,12 +685,11 @@ const adminController = {
                 });
             }
 
-            // Simulated browser/device data
+            // Simulated browser/device data (Needs frontend tracker to be real)
             const deviceStats = { desktop: 65, mobile: 30, tablet: 5 };
             const browserStats = { chrome: 55, safari: 25, firefox: 10, other: 10 };
             
             // Fetch real basic stats from DB to combine with live data
-            const pool = require('../config/db');
             const orderRes = await pool.query(`
                 SELECT 
                     COUNT(*) as total,
