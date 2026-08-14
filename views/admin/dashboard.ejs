@@ -1,6 +1,5 @@
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="/socket.io/socket.io.js"></script>
 
 <style>
     :root {
@@ -300,69 +299,77 @@
 
 <script>
 
-    // Connect Socket.IO
-    const socket = io('/admin');
-    const activityContainer = document.getElementById('activity-container');
-
-    socket.on('connect', () => {
-        console.log('Connected to Live Admin Socket');
-    });
-
-    socket.on('dashboardData', (data) => {
-        // Update top widgets
-        document.getElementById('val-active-visitors').innerText = data.activeVisitors;
-        document.getElementById('val-online-users').innerText = data.onlineUsers;
-        
-        document.getElementById('val-today-revenue').innerText = data.todayRevenue.toLocaleString('en-IN');
-        document.getElementById('val-today-orders').innerText = data.todayOrders;
-
-        // Update Device Bars
-        document.getElementById('bar-mobile').style.width = data.deviceStats.mobile + '%';
-        document.getElementById('val-mobile').innerText = data.deviceStats.mobile + '%';
-        document.getElementById('bar-desktop').style.width = data.deviceStats.desktop + '%';
-        document.getElementById('val-desktop').innerText = data.deviceStats.desktop + '%';
-        document.getElementById('bar-tablet').style.width = data.deviceStats.tablet + '%';
-        document.getElementById('val-tablet').innerText = data.deviceStats.tablet + '%';
-
-        // Update Browser Bars
-        document.getElementById('bar-chrome').style.width = data.browserStats.chrome + '%';
-        document.getElementById('val-chrome').innerText = data.browserStats.chrome + '%';
-        document.getElementById('bar-safari').style.width = data.browserStats.safari + '%';
-        document.getElementById('val-safari').innerText = data.browserStats.safari + '%';
-        let firefoxOther = data.browserStats.firefox + data.browserStats.other;
-        document.getElementById('bar-firefox').style.width = firefoxOther + '%';
-        document.getElementById('val-firefox').innerText = firefoxOther + '%';
-
-        // Prepend new activities
-        if(data.activities && data.activities.length > 0) {
-            if(activityContainer.innerHTML.includes('Waiting')) activityContainer.innerHTML = '';
+    // Polling API for Live Stats
+    const fetchLiveStats = async () => {
+        try {
+            const res = await fetch('/admin/live-stats');
+            if (!res.ok) return;
+            const data = await res.json();
             
-            data.activities.forEach(act => {
-                const actDiv = document.createElement('div');
-                actDiv.className = 'feed-item';
+            // Update top widgets
+            document.getElementById('val-active-visitors').innerText = data.activeVisitors;
+            document.getElementById('val-online-users').innerText = data.onlineUsers;
+            
+            document.getElementById('val-today-revenue').innerText = data.todayRevenue.toLocaleString('en-IN');
+            document.getElementById('val-today-orders').innerText = data.todayOrders;
+
+            // Update Device Bars
+            document.getElementById('bar-mobile').style.width = data.deviceStats.mobile + '%';
+            document.getElementById('val-mobile').innerText = data.deviceStats.mobile + '%';
+            document.getElementById('bar-desktop').style.width = data.deviceStats.desktop + '%';
+            document.getElementById('val-desktop').innerText = data.deviceStats.desktop + '%';
+            document.getElementById('bar-tablet').style.width = data.deviceStats.tablet + '%';
+            document.getElementById('val-tablet').innerText = data.deviceStats.tablet + '%';
+
+            // Update Browser Bars
+            document.getElementById('bar-chrome').style.width = data.browserStats.chrome + '%';
+            document.getElementById('val-chrome').innerText = data.browserStats.chrome + '%';
+            document.getElementById('bar-safari').style.width = data.browserStats.safari + '%';
+            document.getElementById('val-safari').innerText = data.browserStats.safari + '%';
+            let firefoxOther = data.browserStats.firefox + data.browserStats.other;
+            document.getElementById('bar-firefox').style.width = firefoxOther + '%';
+            document.getElementById('val-firefox').innerText = firefoxOther + '%';
+
+            // Prepend new activities
+            if(data.activities && data.activities.length > 0) {
+                if(activityContainer.innerHTML.includes('Waiting')) activityContainer.innerHTML = '';
                 
-                let icon = '⚡';
-                if(act.action.includes('cart')) icon = '🛒';
-                if(act.action.includes('checkout')) icon = '💳';
-                if(act.action.includes('logged in')) icon = '🔑';
+                data.activities.forEach(act => {
+                    // Check if already rendered
+                    if (document.getElementById(`act-${act.id}`)) return;
+                    
+                    const actDiv = document.createElement('div');
+                    actDiv.className = 'feed-item';
+                    actDiv.id = `act-${act.id}`;
+                    
+                    let icon = '⚡';
+                    if(act.action.includes('cart')) icon = '🛒';
+                    if(act.action.includes('checkout')) icon = '💳';
+                    if(act.action.includes('logged in')) icon = '🔑';
 
-                actDiv.innerHTML = `
-                    <div style="display:flex; gap: 10px; align-items: center;">
-                        <span>${icon}</span>
-                        <div>
-                            <span class="feed-user">${act.user}</span> 
-                            <span class="feed-action">${act.action}</span>
+                    actDiv.innerHTML = `
+                        <div style="display:flex; gap: 10px; align-items: center;">
+                            <span>${icon}</span>
+                            <div>
+                                <span class="feed-user">${act.user}</span> 
+                                <span class="feed-action">${act.action}</span>
+                            </div>
                         </div>
-                    </div>
-                    <span class="feed-time">${act.time}</span>
-                `;
-                activityContainer.prepend(actDiv);
-            });
+                        <span class="feed-time">${act.time}</span>
+                    `;
+                    activityContainer.prepend(actDiv);
+                });
 
-            // Keep max 20 items
-            while(activityContainer.children.length > 20) {
-                activityContainer.removeChild(activityContainer.lastChild);
+                // Keep max 20 items
+                while(activityContainer.children.length > 20) {
+                    activityContainer.removeChild(activityContainer.lastChild);
+                }
             }
+        } catch(e) {
+            console.error('Failed to fetch live stats', e);
         }
-    });
+    };
+    
+    fetchLiveStats();
+    setInterval(fetchLiveStats, 5000);
 </script>

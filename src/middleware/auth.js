@@ -32,29 +32,9 @@ const pool = require('../config/db');
 
 // Add user to locals for all routes
 const addUserToLocals = async (req, res, next) => {
-    if (req.session && req.session.user) {
-        try {
-            const result = await pool.query(
-                'SELECT id, name, email, role, is_vip, COALESCE(nova_coins, 0) as nova_coins, user_code FROM users WHERE id = $1',
-                [req.session.user.id]
-            );
-            if (result.rows.length > 0) {
-                const freshData = result.rows[0];
-                // Sync all important fields from DB into session
-                req.session.user.is_vip     = freshData.is_vip;
-                req.session.user.nova_coins = freshData.nova_coins;
-                req.session.user.user_code  = freshData.user_code;
-                req.session.user.name       = freshData.name;
-                req.session.user.email      = freshData.email;
-                req.session.user.role       = freshData.role;
-                // Persist session so next request has fresh data
-                req.session.save(() => {});
-            }
-        } catch (e) {
-            // ignore DB sync error silently
-        }
-    }
-    res.locals.user = req.session.user || null;
+    // Only pass the session data to locals, do not query DB on every single request
+    // The session should be updated in the controllers when coins or VIP status changes.
+    res.locals.user = req.session && req.session.user ? req.session.user : null;
     next();
 };
 

@@ -659,6 +659,60 @@ const adminController = {
             req.flash('error', 'Failed to update coupon status');
             res.redirect('/admin/coupons');
         }
+    },
+
+    // Get Live Stats for Dashboard API
+    getLiveStats: async (req, res) => {
+        try {
+            // Simulated live data
+            const activeVisitors = Math.floor(Math.random() * (45 - 15 + 1) + 15);
+            const onlineUsers = Math.floor(activeVisitors * 0.4);
+            
+            // Randomly generate 1-3 live activity events
+            const activities = [];
+            const actions = ['viewed product', 'added to cart', 'initiated checkout', 'logged in', 'searched'];
+            for(let i=0; i<Math.floor(Math.random() * 3) + 1; i++) {
+                activities.push({
+                    id: Date.now() + i,
+                    user: `Guest_${Math.floor(Math.random() * 9000)+1000}`,
+                    action: actions[Math.floor(Math.random() * actions.length)],
+                    time: new Date().toLocaleTimeString()
+                });
+            }
+
+            // Simulated browser/device data
+            const deviceStats = { desktop: 65, mobile: 30, tablet: 5 };
+            const browserStats = { chrome: 55, safari: 25, firefox: 10, other: 10 };
+            
+            // Fetch real basic stats from DB to combine with live data
+            const pool = require('../config/db');
+            const orderRes = await pool.query(`
+                SELECT 
+                    COUNT(*) as total,
+                    SUM(total) as revenue 
+                FROM orders 
+                WHERE created_at >= CURRENT_DATE
+            `);
+            const todayOrders = parseInt(orderRes.rows[0].total || 0);
+            const todayRevenue = parseFloat(orderRes.rows[0].revenue || 0);
+
+            // Construct payload
+            const payload = {
+                activeVisitors,
+                onlineUsers,
+                todayOrders,
+                todayRevenue,
+                activities,
+                deviceStats,
+                browserStats,
+                timestamp: new Date().toISOString()
+            };
+
+            res.json(payload);
+        } catch (error) {
+            console.error('Error fetching live stats:', error);
+            res.status(500).json({ error: 'Failed to fetch live stats' });
+        }
     }
 };
 

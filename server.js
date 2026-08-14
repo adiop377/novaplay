@@ -11,12 +11,8 @@ const cookieParser = require('cookie-parser');
 const flash = require('connect-flash');
 const path = require('path');
 const http = require('http');
-const compression = require('compression');
-const { Server } = require("socket.io");
-
-const app = express();
+const compression = require('compression');const app = express();
 const server = http.createServer(app);
-const io = new Server(server);
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 app.use(expressLayouts);
@@ -80,9 +76,6 @@ const { isAuthenticated } = require('./src/middleware/auth');
 
 // Auth Routes (Must be before the global gatekeeper)
 app.use('/', authRoutes);
-
-// GLOBAL GATEKEEPER: Ensure users are logged in for all following routes
-app.use(isAuthenticated);
 
 // Backend Proxy for UID Verification (To avoid Mixed Content HTTPS/HTTP errors)
 app.get('/api/verify-uid/:uid', async (req, res) => {
@@ -234,90 +227,22 @@ if (process.env.NODE_ENV !== 'production') {
     const PORT = process.env.PORT || 3000;
     server.listen(PORT, '0.0.0.0', () => {
         console.log(`🚀 PlayNova running at http://localhost:${PORT}`);
-        console.log(`📱 Network access (for phone): http://192.168.1.6:${PORT}`);
+        
+        // Dynamically get the local IP address
+        const { networkInterfaces } = require('os');
+        const nets = networkInterfaces();
+        let localIp = '127.0.0.1';
+        for (const name of Object.keys(nets)) {
+            for (const net of nets[name]) {
+                if (net.family === 'IPv4' && !net.internal) {
+                    localIp = net.address;
+                }
+            }
+        }
+        
+        console.log(`📱 Network access (for phone): http://${localIp}:${PORT}`);
     });
 }
-
-// Socket.IO Admin Dashboard Logic
-const adminNamespace = io.of('/admin');
-
-let lastPayload = null;
-let activeConnections = 0;
-
-const pushLiveStatsGlobal = async () => {
-    if (activeConnections === 0) return; // Only run if there are connected clients
-    
-    try {
-        // Simulated live data
-        const activeVisitors = Math.floor(Math.random() * (45 - 15 + 1) + 15);
-        const onlineUsers = Math.floor(activeVisitors * 0.4);
-        
-        // Randomly generate 1-3 live activity events
-        const activities = [];
-        const actions = ['viewed product', 'added to cart', 'initiated checkout', 'logged in', 'searched'];
-        for(let i=0; i<Math.floor(Math.random() * 3) + 1; i++) {
-            activities.push({
-                id: Date.now() + i,
-                user: `Guest_${Math.floor(Math.random() * 9000)+1000}`,
-                action: actions[Math.floor(Math.random() * actions.length)],
-                time: new Date().toLocaleTimeString()
-            });
-        }
-
-        // Simulated browser/device data
-        const deviceStats = { desktop: 65, mobile: 30, tablet: 5 };
-        const browserStats = { chrome: 55, safari: 25, firefox: 10, other: 10 };
-        
-        // Fetch real basic stats from DB to combine with live data
-        const orderRes = await pool.query(`
-            SELECT 
-                COUNT(*) as total,
-                SUM(total) as revenue 
-            FROM orders 
-            WHERE created_at >= CURRENT_DATE
-        `);
-        const todayOrders = parseInt(orderRes.rows[0].total || 0);
-        const todayRevenue = parseFloat(orderRes.rows[0].revenue || 0);
-
-        // Construct payload
-        const payload = {
-            activeVisitors,
-            onlineUsers,
-            todayOrders,
-            todayRevenue,
-            activities,
-            deviceStats,
-            browserStats,
-            timestamp: new Date().toISOString()
-        };
-
-        // Only emit if data changed in meaningful way (for stats like orders/revenue) or just emit everything
-        // For simplicity and debounce, we just broadcast every 5 seconds.
-        adminNamespace.emit('dashboardData', payload);
-        lastPayload = payload;
-    } catch (error) {
-        console.error('Error pushing live stats:', error);
-    }
-};
-
-// Global Interval for admin updates every 5 seconds instead of 3 seconds per client
-setInterval(pushLiveStatsGlobal, 5000);
-
-adminNamespace.on('connection', (socket) => {
-    console.log('Admin dashboard connected via Socket.IO');
-    activeConnections++;
-    
-    // Push the latest known payload immediately to the newly connected client
-    if (lastPayload) {
-        socket.emit('dashboardData', lastPayload);
-    } else {
-        pushLiveStatsGlobal();
-    }
-
-    socket.on('disconnect', () => {
-        activeConnections--;
-    });
-});
 
 // Export for Vercel Serverless
 module.exports = server;

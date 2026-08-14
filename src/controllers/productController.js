@@ -8,7 +8,7 @@ const productController = {
             const filters = {
                 search: req.query.search || '',
                 rank: req.query.rank || 'all',
-                maxPrice: req.query.maxPrice ? parseInt(req.query.maxPrice) : null
+                maxPrice: (req.query.maxPrice && !isNaN(parseInt(req.query.maxPrice))) ? parseInt(req.query.maxPrice) : null
             };
 
             const products = await Product.getAll(filters);
@@ -86,7 +86,7 @@ const productController = {
             const filters = {
                 search: req.query.search || '',
                 rank: req.query.rank || 'all',
-                maxPrice: req.query.maxPrice ? parseInt(req.query.maxPrice) : null
+                maxPrice: (req.query.maxPrice && !isNaN(parseInt(req.query.maxPrice))) ? parseInt(req.query.maxPrice) : null
             };
 
             const products = await Product.getAll(filters);

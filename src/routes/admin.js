@@ -28,6 +28,7 @@ router.use(isAdmin);
 
 // Dashboard
 router.get('/', adminController.dashboard);
+router.get('/live-stats', adminController.getLiveStats);
 
 // Products management
 router.get('/products', adminController.listProducts);
@@ -49,8 +50,6 @@ router.get('/topups', adminController.listTopups);
 router.post('/topups', uploadSingle, adminController.createTopup);
 router.post('/topups/:id', uploadSingle, adminController.updateTopup);
 router.post('/topups/:id/delete', adminController.deleteTopup);
-
-
 
 // Users & Nova Coins management
 router.get('/users', adminController.listUsers);
