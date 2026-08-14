@@ -154,6 +154,18 @@ const User = {
         return result.rows[0];
     },
 
+    // Toggle Admin Role
+    async toggleAdmin(id) {
+        const query = `
+            UPDATE users 
+            SET role = CASE WHEN role = 'admin' THEN 'user' ELSE 'admin' END
+            WHERE id = $1
+            RETURNING id, name, email, role, user_code
+        `;
+        const result = await pool.query(query, [id]);
+        return result.rows[0];
+    },
+
     // Find user by search term (User Code PN-828586, numeric ID, name, email)
     async findByIdOrSearch(term) {
         if (!term) return [];

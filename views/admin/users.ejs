@@ -193,6 +193,31 @@
                                                 </button>
                                             <% } %>
                                         </div>
+
+                                        <!-- Admin Status Button -->
+                                        <div id="admin-btn-container-<%= u.id %>">
+                                            <% if (u.role === 'admin') { %>
+                                                <button 
+                                                    type="button" 
+                                                    id="admin-btn-<%= u.id %>"
+                                                    onclick="toggleAdminStatus('<%= u.id %>', '<%= u.name.replace(/'/g, '') %>')" 
+                                                    style="background: rgba(255, 140, 0, 0.15); border: 1px solid rgba(255, 140, 0, 0.4); color: #ff8c00; padding: 6px 12px; border-radius: 8px; font-size: 0.8rem; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s;"
+                                                    title="Remove Admin Status"
+                                                >
+                                                    <i class="fa-solid fa-user-shield"></i> Remove Admin
+                                                </button>
+                                            <% } else { %>
+                                                <button 
+                                                    type="button" 
+                                                    id="admin-btn-<%= u.id %>"
+                                                    onclick="toggleAdminStatus('<%= u.id %>', '<%= u.name.replace(/'/g, '') %>')" 
+                                                    style="background: rgba(188, 19, 254, 0.15); border: 1px solid rgba(188, 19, 254, 0.4); color: #bc13fe; padding: 6px 12px; border-radius: 8px; font-size: 0.8rem; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s;"
+                                                    title="Make Admin"
+                                                >
+                                                    <i class="fa-solid fa-user-shield"></i> Make Admin
+                                                </button>
+                                            <% } %>
+                                        </div>
                                     </div>
                                 </td>
                             </tr>
@@ -433,6 +458,66 @@ async function toggleVipStatus(userId, userName) {
                 background: '#141a29',
                 color: '#fff'
             });
+        }
+    } catch (e) {
+        Swal.fire({ icon: 'error', title: 'Error', text: e.message, background: '#141a29', color: '#fff' });
+    }
+}
+
+// 1-Click Admin Toggle (Grant or Cancel Admin)
+async function toggleAdminStatus(userId, userName) {
+    const isCurrentlyAdmin = document.getElementById(`admin-btn-${userId}`)?.innerText.includes('Remove');
+    
+    // If currently Admin, show confirmation modal
+    if (isCurrentlyAdmin) {
+        const confirmRes = await Swal.fire({
+            title: `Remove Admin Status?`,
+            text: `Are you sure you want to revoke Admin rights for ${userName}? They will become a regular user.`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#ff8c00',
+            cancelButtonColor: '#64748b',
+            confirmButtonText: 'Yes, Remove Admin',
+            background: '#141a29',
+            color: '#fff'
+        });
+        if (!confirmRes.isConfirmed) return;
+    } else {
+        const confirmRes = await Swal.fire({
+            title: `Grant Admin Rights?`,
+            text: `Are you sure you want to make ${userName} an Admin? They will have full access to this dashboard!`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#bc13fe',
+            cancelButtonColor: '#64748b',
+            confirmButtonText: 'Yes, Make Admin',
+            background: '#141a29',
+            color: '#fff'
+        });
+        if (!confirmRes.isConfirmed) return;
+    }
+
+    try {
+        const res = await fetch(`/admin/users/${userId}/admin`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' }
+        });
+        const data = await res.json();
+        
+        if (data.success) {
+            Swal.fire({
+                icon: 'success',
+                title: data.is_admin ? 'Admin Rights Granted 🛡️' : 'Admin Rights Revoked 👤',
+                text: data.message,
+                timer: 1400,
+                showConfirmButton: false,
+                background: '#141a29',
+                color: '#fff'
+            }).then(() => {
+                window.location.reload(); // Reload to reflect role badge changes easily
+            });
+        } else {
+            Swal.fire({ icon: 'error', title: 'Failed', text: data.message, background: '#141a29', color: '#fff' });
         }
     } catch (e) {
         Swal.fire({ icon: 'error', title: 'Error', text: e.message, background: '#141a29', color: '#fff' });

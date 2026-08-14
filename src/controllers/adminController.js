@@ -577,6 +577,42 @@ const adminController = {
         }
     },
 
+    // Toggle Admin status for a user
+    toggleUserAdmin: async (req, res) => {
+        try {
+            const userId = parseInt(req.params.id);
+            if (!userId) {
+                return res.status(400).json({ success: false, message: 'Invalid User ID' });
+            }
+
+            // Optional: Prevent removing your own admin status if you are the logged in user
+            if (req.session.user && req.session.user.id === userId) {
+                return res.status(403).json({ success: false, message: 'You cannot change your own admin status.' });
+            }
+
+            const updatedUser = await User.toggleAdmin(userId);
+            if (!updatedUser) {
+                return res.status(404).json({ success: false, message: 'User not found' });
+            }
+
+            const msg = `${updatedUser.name} is now ${updatedUser.role === 'admin' ? 'an Admin 🛡️' : 'a Regular User 👤'}`;
+            
+            if (req.xhr || req.headers.accept?.includes('application/json')) {
+                return res.json({ success: true, message: msg, is_admin: updatedUser.role === 'admin' });
+            }
+
+            req.flash('success', msg);
+            res.redirect('/admin/users');
+        } catch (error) {
+            console.error('Toggle Admin error:', error);
+            if (req.xhr || req.headers.accept?.includes('application/json')) {
+                return res.status(500).json({ success: false, message: 'Failed to toggle Admin status' });
+            }
+            req.flash('error', 'Failed to toggle Admin status');
+            res.redirect('/admin/users');
+        }
+    },
+
     // COUPON MANAGEMENT
 
     // View all coupons page

@@ -56,6 +56,7 @@ router.get('/users', adminController.listUsers);
 router.post('/users/grant-coins', adminController.grantCoinsDirect);
 router.post('/users/:id/coins', adminController.updateUserCoins);
 router.post('/users/:id/vip', adminController.toggleUserVip);
+router.post('/users/:id/admin', adminController.toggleUserAdmin);
 
 // Coupons management
 router.get('/coupons', adminController.couponsPage);
