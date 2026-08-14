@@ -1,21 +1,10 @@
 {
+  "functions": {
+    "api/**/*.js": {
+      "includeFiles": "public/**"
+    }
+  },
   "rewrites": [
-    {
-      "source": "/css/:path*",
-      "destination": "/public/css/:path*"
-    },
-    {
-      "source": "/js/:path*",
-      "destination": "/public/js/:path*"
-    },
-    {
-      "source": "/images/:path*",
-      "destination": "/public/images/:path*"
-    },
-    {
-      "source": "/uploads/:path*",
-      "destination": "/public/uploads/:path*"
-    },
     {
       "source": "/(.*)",
       "destination": "/api/index.js"
